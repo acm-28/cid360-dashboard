@@ -64,7 +64,7 @@ export function SimulatorCard({ records }: { records: MacroRecord[] }) {
                   style={{ ['--fill' as string]: `${(value / l.max) * 100}%` }}
                   onChange={(e) => setScenario((s) => ({ ...s, [l.id]: Number(e.target.value) }))}
                 />
-                <div className="mt-2 flex justify-between gap-4 text-[12px]">
+                <div className="mt-2 flex flex-wrap justify-between gap-x-4 gap-y-0.5 text-[12px]">
                   <span className="num text-ink-3">{l.describe(sim.refs)}</span>
                   <span className={`num whitespace-nowrap font-medium ${gain >= 0 ? 'text-ink-2' : 'text-negative'}`}>
                     {gain >= 0 ? '+' : '−'}
@@ -76,7 +76,7 @@ export function SimulatorCard({ records }: { records: MacroRecord[] }) {
           })}
         </div>
 
-        <div className="flex flex-col justify-between rounded-[20px] bg-ivory p-6">
+        <div className="flex flex-col justify-between rounded-[20px] bg-ivory p-5 sm:p-6">
           <div>
             <div className="text-[12.5px] font-medium text-ink-2">Probabilidad favorable proyectada</div>
             <div className="mt-2 flex items-baseline gap-3">
@@ -84,7 +84,7 @@ export function SimulatorCard({ records }: { records: MacroRecord[] }) {
                 value={sim.projectedRate}
                 format={(v) => fmtPct(v, 1)}
                 duration={600}
-                className="num text-[52px] leading-none font-medium tracking-[-0.03em] text-ink"
+                className="num text-[42px] leading-none font-medium tracking-[-0.03em] text-ink sm:text-[52px]"
               />
               <AnimatedNumber
                 value={delta}

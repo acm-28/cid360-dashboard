@@ -43,22 +43,31 @@ export function Card({
       ref={ref}
       data-reveal={visible ? 'in' : 'pending'}
       onPointerMove={spotlight}
-      className={clsx('card flex min-w-0 flex-col p-5 md:p-7', className)}
+      className={clsx('card @container flex min-w-0 flex-col p-4 sm:p-5 md:p-7', className)}
     >
       {(title || actions) && (
         <header className="mb-5 flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             {eyebrow && <div className="eyebrow mb-1.5">{eyebrow}</div>}
-            {title && <h2 className="text-[19px] font-semibold tracking-[-0.015em] text-ink">{title}</h2>}
+            {title && <h2 className="text-[17px] font-semibold tracking-[-0.015em] text-ink sm:text-[19px]">{title}</h2>}
             {subtitle && <p className="mt-1 max-w-[62ch] text-[13px] text-ink-2">{subtitle}</p>}
           </div>
-          {actions && <div className="no-print no-scrollbar flex max-w-full items-center gap-2 overflow-x-auto">{actions}</div>}
+          {actions && (
+            <div className="no-print no-scrollbar -mx-4 flex max-w-[calc(100%+2rem)] flex-wrap items-center gap-2 overflow-x-auto px-4 sm:mx-0 sm:max-w-full sm:px-0">
+              {actions}
+            </div>
+          )}
         </header>
       )}
       {children}
     </section>
     </RevealContext.Provider>
   )
+}
+
+/** Grab bar shown when a panel is presented as a bottom sheet on phones. */
+export function SheetHandle() {
+  return <div aria-hidden className="mx-auto mt-2 h-1 w-9 shrink-0 rounded-full bg-hairline sm:hidden" />
 }
 
 /** Headline words that settle in one after another (see `.word`). */

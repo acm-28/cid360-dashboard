@@ -29,6 +29,7 @@
 
 @layer base {
   html {
+    scrollbar-gutter: stable;
     background: var(--color-ivory);
     color: var(--color-ink);
     -webkit-font-smoothing: antialiased;
@@ -37,6 +38,9 @@
   }
   body {
     @apply font-sans text-[14px] leading-[1.45];
+    overflow-x: clip;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
   ::selection {
     background: var(--color-cid-soft);
@@ -51,6 +55,23 @@
 @utility num {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
+}
+
+/* Page gutter shared by the top bar and every page, from 320px phones to ultra-wide displays. */
+@utility page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1440px;
+  padding-inline: 16px;
+  @media (min-width: 640px) {
+    padding-inline: 20px;
+  }
+  @media (min-width: 768px) {
+    padding-inline: 32px;
+  }
+  @media (min-width: 1800px) {
+    max-width: 1640px;
+  }
 }
 
 @utility eyebrow {
@@ -117,6 +138,27 @@
     &:hover::before,
     &:hover::after {
       opacity: 1;
+    }
+  }
+}
+
+/* Panels: bottom sheet on phones, right-hand drawer from 640px up. */
+@layer components {
+  .sheet {
+    inset: auto 8px 8px 8px;
+    max-height: 86dvh;
+  }
+  .sheet-closed {
+    translate: 0 110%;
+  }
+  @media (min-width: 640px) {
+    .sheet {
+      inset: 12px 12px 12px auto;
+      max-height: none;
+      max-width: calc(100vw - 24px);
+    }
+    .sheet-closed {
+      translate: 110% 0;
     }
   }
 }

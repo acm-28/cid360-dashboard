@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import { ChevronRight } from 'lucide-react'
@@ -37,6 +37,10 @@ export const rateColor = (rate: number) =>
 const MONTH = new Intl.DateTimeFormat('es-AR', { month: 'short' })
 const monthOf = (iso: string) => MONTH.format(new Date(Number(iso.slice(0, 4)), Number(iso.slice(5, 7)) - 1, 1)).replace('.', '')
 
+/** Soft fade on the sticky provider column so dots slide under it when the calendar scrolls on phones. */
+const EDGE =
+  "max-sm:after:pointer-events-none max-sm:after:absolute max-sm:after:inset-y-0 max-sm:after:-right-3 max-sm:after:w-3 max-sm:after:bg-gradient-to-r max-sm:after:from-ivory-raised max-sm:after:to-transparent max-sm:after:content-['']"
+
 interface Tip {
   provider: Provider
   batch: Batch
@@ -62,6 +66,13 @@ export function DeliveryCalendarCard({
   const [scope, setScope] = useState<'all' | 'issues'>('all')
   const [tip, setTip] = useState<Tip | null>(null)
   const [col, setCol] = useState<number | null>(null)
+  const scroller = useRef<HTMLDivElement>(null)
+
+  // Narrow screens can't fit the whole period: start at the most recent days.
+  useLayoutEffect(() => {
+    const el = scroller.current
+    if (el) el.scrollLeft = el.scrollWidth
+  }, [period, scope])
 
   useEffect(() => {
     if (!tip) return
@@ -74,7 +85,7 @@ export function DeliveryCalendarCard({
     .map((p) => ({ provider: p, t: tally(inRange(p, days)) }))
     .filter(({ provider, t }) => scope === 'all' || t.rejected + t.missing > 0 || open.has(provider.id))
 
-  const template = `minmax(168px, 1fr) repeat(${days.length}, minmax(22px, 48px)) 76px`
+  const template = `minmax(var(--provider-col), var(--provider-max)) repeat(${days.length}, minmax(22px, var(--day-max))) var(--rate-col)`
   const cellEdge = (i: number) => (i > 0 && isMonday(days[i]) ? 'border-l border-hairline/70' : '')
   const isToday = (d: string) => d === feed.asOf
 
@@ -114,10 +125,13 @@ export function DeliveryCalendarCard({
         </>
       }
     >
-      <div className="-mx-2 overflow-x-auto px-2 pb-1">
+      <div
+        ref={scroller}
+        className="overflow-x-auto overscroll-x-contain pb-1 [--day-max:30px] [--provider-col:136px] [--provider-max:136px] [--rate-col:0px] max-sm:no-scrollbar sm:[--day-max:48px] sm:[--provider-col:168px] sm:[--provider-max:1fr] sm:[--rate-col:76px]"
+      >
         <div key={period} className="min-w-max" onPointerLeave={() => setCol(null)}>
           <div className="grid items-end pb-2" style={{ gridTemplateColumns: template }}>
-            <div className="eyebrow sticky left-0 z-10 bg-ivory-raised pl-3">Proveedor</div>
+            <div className={`eyebrow sticky left-0 z-10 flex self-stretch items-end bg-ivory-raised pb-1 pl-3 ${EDGE}`}>Proveedor</div>
             {days.map((d, i) => {
               const monthStart = i === 0 || d.slice(5, 7) !== days[i - 1].slice(5, 7)
               return (
@@ -144,7 +158,7 @@ export function DeliveryCalendarCard({
                 </div>
               )
             })}
-            <div className="eyebrow pr-3 text-right">Cumpl.</div>
+            <div className="eyebrow pr-3 text-right max-sm:hidden">Cumpl.</div>
           </div>
 
           <div>
@@ -166,12 +180,21 @@ export function DeliveryCalendarCard({
                 className="focus-row group grid cursor-pointer items-stretch rounded-[14px] transition-colors duration-200 hover:bg-ivory"
                 style={{ gridTemplateColumns: template }}
               >
-                <div className="sticky left-0 z-10 flex items-center gap-2 rounded-l-[14px] bg-ivory-raised py-2.5 pr-3 pl-3 transition-colors duration-200 group-hover:bg-ivory">
+                <div
+                  className={`sticky left-0 z-10 flex items-center gap-2 rounded-l-[14px] bg-ivory-raised py-2.5 pr-2 pl-3 transition-colors duration-200 group-hover:bg-ivory sm:pr-3 ${EDGE}`}
+                >
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-[13.5px] font-semibold text-ink">{p.name}</div>
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="truncate text-[13.5px] font-semibold text-ink">{p.name}</span>
+                      {t.expected > 0 && (
+                        <span className={clsx('num shrink-0 text-[12px] font-semibold sm:hidden', rateTone(t.rate))}>
+                          {fmtPct(t.rate, 0)}
+                        </span>
+                      )}
+                    </div>
                     <RowStatus provider={p} incident={open.get(p.id)} />
                   </div>
-                  <ChevronRight className="size-4 shrink-0 -translate-x-1 text-ink-3 opacity-0 transition-[opacity,translate] duration-300 ease-apple group-hover:translate-x-0 group-hover:opacity-100" />
+                  <ChevronRight className="size-4 shrink-0 -translate-x-1 text-ink-3 opacity-0 transition-[opacity,translate] duration-300 ease-apple group-hover:translate-x-0 group-hover:opacity-100 max-sm:hidden" />
                 </div>
 
                 {days.map((d, c) => {
@@ -209,7 +232,7 @@ export function DeliveryCalendarCard({
                   )
                 })}
 
-                <div className="flex flex-col items-end justify-center gap-1 pr-3">
+                <div className="flex flex-col items-end justify-center gap-1 pr-3 max-sm:hidden">
                   {t.expected ? (
                     <>
                       <span className={clsx('num text-[14px] font-semibold', rateTone(t.rate))}>{fmtPct(t.rate, 0)}</span>

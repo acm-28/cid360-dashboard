@@ -96,7 +96,7 @@ interface TileData {
   accent?: boolean
 }
 
-function Tile({ t, hours }: { t: TileData; hours: number[] }) {
+function Tile({ t, hours, span }: { t: TileData; hours: number[]; span: string }) {
   const [ref, visible] = useReveal<HTMLElement>()
   return (
     <RevealContext.Provider value={visible}>
@@ -104,9 +104,9 @@ function Tile({ t, hours }: { t: TileData; hours: number[] }) {
         ref={ref}
         data-reveal={visible ? 'in' : 'pending'}
         onPointerMove={spotlight}
-        className="card flex flex-col p-5 last:col-span-2 md:last:col-span-1"
+        className={`card flex min-w-0 flex-col p-4 sm:p-5 xl:col-span-1 ${span}`}
       >
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
           <span className="text-[12.5px] font-medium text-ink-2">{t.label}</span>
           {t.delta !== undefined && <Delta value={t.delta} suffix={t.deltaSuffix} inverse={t.inverse} />}
         </div>
@@ -114,9 +114,9 @@ function Tile({ t, hours }: { t: TileData; hours: number[] }) {
           <AnimatedNumber
             value={t.value}
             format={t.format}
-            className={`num text-[40px] leading-none font-medium ${t.accent ? 'text-cid-deep' : 'text-ink'}`}
+            className={`num text-[30px] leading-none font-medium sm:text-[36px] lg:text-[40px] ${t.accent ? 'text-cid-deep' : 'text-ink'}`}
           />
-          {t.unit && <span className="text-[15px] font-medium text-ink-3">{t.unit}</span>}
+          {t.unit && <span className="text-[13px] font-medium text-ink-3 sm:text-[15px]">{t.unit}</span>}
         </div>
         <div className="mt-4">
           <Sparkline values={t.spark} hours={hours} format={t.sparkFormat} accent={t.accent} />
@@ -192,9 +192,14 @@ export function KpiRow({ kpis, previous }: { kpis: Kpis; previous?: Kpis }) {
   ]
 
   return (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-      {tiles.map((t) => (
-        <Tile key={t.label} t={t} hours={kpis.sparkHours} />
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-6 xl:grid-cols-5">
+      {tiles.map((t, i) => (
+        <Tile
+          key={t.label}
+          t={t}
+          hours={kpis.sparkHours}
+          span={i < 3 ? 'md:col-span-2' : i === tiles.length - 1 ? 'col-span-2 md:col-span-3' : 'md:col-span-3'}
+        />
       ))}
     </div>
   )

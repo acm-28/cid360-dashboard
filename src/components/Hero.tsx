@@ -23,11 +23,11 @@ export function Hero({
   const set = <K extends keyof Filters>(k: K) => (v: Filters[K]) => onFilters((prev) => ({ ...prev, [k]: v }))
 
   return (
-    <section className="pt-10 pb-8 md:pt-14">
+    <section className="pt-7 pb-7 sm:pt-10 sm:pb-8 md:pt-14">
       <div className="fade-in mb-3 text-[13px] font-medium text-ink-2">{fmtDate(date)}</div>
       {kpis.total ? (
         <>
-          <h1 className="max-w-[24ch] text-[34px] leading-[1.08] font-semibold tracking-[-0.035em] text-ink md:text-[48px]">
+          <h1 className="max-w-[24ch] text-[30px] leading-[1.08] font-semibold tracking-[-0.035em] text-ink sm:text-[36px] md:text-[44px] lg:text-[48px]">
             <span className="word text-cid-deep" style={{ ['--i' as string]: 0 }}>
               <AnimatedNumber value={kpis.favorableRate} format={(v) => fmtPct(v, 0)} className="num" />
             </span>{' '}
@@ -41,7 +41,7 @@ export function Hero({
         </>
       ) : (
         <>
-          <h1 className="max-w-[24ch] text-[34px] leading-[1.08] font-semibold tracking-[-0.035em] text-ink md:text-[48px]">
+          <h1 className="max-w-[24ch] text-[30px] leading-[1.08] font-semibold tracking-[-0.035em] text-ink sm:text-[36px] md:text-[44px] lg:text-[48px]">
             <Words text="Ninguna gestión coincide con esta combinación." />
           </h1>
           <p className="mt-4 max-w-[64ch] text-[15px] text-ink-2">
@@ -111,7 +111,7 @@ function FilterGroup({ label, children }: { label: string; children: React.React
   return (
     <div className="flex max-w-full min-w-0 items-center gap-2.5">
       <span className="shrink-0 text-[12px] font-medium text-ink-3">{label}</span>
-      <div className="no-scrollbar min-w-0 overflow-x-auto">{children}</div>
+      <div className="no-scrollbar -mr-4 min-w-0 overflow-x-auto pr-4 sm:mr-0 sm:pr-0">{children}</div>
     </div>
   )
 }

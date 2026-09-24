@@ -37,13 +37,13 @@ export function HourlyCard({ rows }: { rows: ReturnType<typeof hourly> }) {
       }
     >
       {extremes && metric === 'favorable' && (
-        <div className="mb-4 grid grid-cols-2 gap-3">
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:gap-3">
           <Callout i={0} tone="accent" label="Mejor franja" hour={extremes.best.hour} value={fmtPct(extremes.best.favorable!, 0)} />
           <Callout i={1} tone="muted" label="Franja más débil" hour={extremes.worst.hour} value={fmtPct(extremes.worst.favorable!, 0)} />
         </div>
       )}
 
-      <div className="h-[260px] w-full min-w-0 overflow-hidden">
+      <div className="h-[220px] w-full min-w-0 overflow-hidden sm:h-[260px]">
         <WhenRevealed>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
@@ -132,11 +132,11 @@ export function HourlyCard({ rows }: { rows: ReturnType<typeof hourly> }) {
 function Callout({ i, tone, label, hour, value }: { i: number; tone: 'accent' | 'muted'; label: string; hour: number; value: string }) {
   return (
     <div
-      className={`stagger-item bubble px-4 py-3 ${tone === 'accent' ? 'bg-cid-soft/70' : 'bg-ivory-sunken/70'}`}
+      className={`stagger-item bubble min-w-0 px-3 py-2.5 sm:px-4 sm:py-3 ${tone === 'accent' ? 'bg-cid-soft/70' : 'bg-ivory-sunken/70'}`}
       style={{ ['--i' as string]: i }}
     >
       <div className="text-[11.5px] font-medium text-ink-2">{label}</div>
-      <div className="mt-0.5 flex items-baseline gap-2">
+      <div className="mt-0.5 flex flex-wrap items-baseline gap-x-2">
         <span className="num text-[20px] font-semibold text-ink">{hourLabel(hour)}</span>
         <span className={`num text-[13px] font-medium ${tone === 'accent' ? 'text-cid-deep' : 'text-ink-2'}`}>
           {value} favorable

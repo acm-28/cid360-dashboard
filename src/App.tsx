@@ -118,7 +118,7 @@ export default function App() {
       {route === 'envios' ? (
         <DeliveriesPage />
       ) : (
-        <main className="mx-auto max-w-[1440px] px-5 pb-20 md:px-8">
+        <main className="page pb-16 md:pb-20">
           {data.status.kind === 'error' && !data.current && <EmptyState title="No pudimos cargar los datos" body={data.status.message} />}
           {!data.current && data.status.kind === 'loading' && <Loading />}
 
@@ -139,7 +139,7 @@ export default function App() {
               {view && (
                 <>
                   <KpiRow kpis={view.kpis} previous={previousKpis} />
-                  <div className="mt-4 grid grid-flow-dense grid-cols-1 gap-4 lg:grid-cols-12">
+                  <div className="mt-3 grid grid-flow-dense grid-cols-1 gap-3 sm:mt-4 sm:gap-4 lg:grid-cols-12">
                     {layout.order
                       .filter((id) => !layout.hidden.includes(id))
                       .map((id) => (

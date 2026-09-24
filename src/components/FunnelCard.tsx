@@ -26,11 +26,16 @@ export function FunnelCard({ stages }: { stages: ReturnType<typeof funnel> }) {
             >
               <div className="flex min-w-0 items-baseline gap-2">
                 <span className="truncate text-[13px] font-medium text-ink">{s.label}</span>
-                {s.hint && <span className="hidden truncate text-[12px] text-ink-3 sm:inline">{s.hint}</span>}
+                {s.hint && <span className="hidden truncate text-[12px] text-ink-3 @lg:inline">{s.hint}</span>}
               </div>
-              <div className="flex items-baseline gap-3">
-                {i > 0 && <span className="num text-[12px] text-ink-3">{fmtPct(step, 0)} de la etapa previa</span>}
-                <span className="num w-14 text-right text-[15px] font-semibold text-ink">{fmtInt(s.value)}</span>
+              <div className="flex items-baseline gap-2 @md:gap-3">
+                {i > 0 && (
+                  <span className="num text-[12px] whitespace-nowrap text-ink-3">
+                    {fmtPct(step, 0)}
+                    <span className="hidden @md:inline"> de la etapa previa</span>
+                  </span>
+                )}
+                <span className="num w-12 text-right text-[15px] font-semibold text-ink @md:w-14">{fmtInt(s.value)}</span>
               </div>
               <div className="col-span-2 h-2.5 overflow-hidden rounded-full bg-ivory-sunken">
                 <div
@@ -46,7 +51,7 @@ export function FunnelCard({ stages }: { stages: ReturnType<typeof funnel> }) {
           )
         })}
       </ol>
-      <div className="mt-6 flex items-baseline justify-between border-t border-hairline pt-4">
+      <div className="mt-6 flex items-baseline justify-between gap-4 border-t border-hairline pt-4">
         <span className="text-[12.5px] text-ink-2">Recorren el embudo completo hasta probabilidad favorable</span>
         <AnimatedNumber value={stages[last - 1].value / top} format={fmtPct} className="num text-[22px] font-semibold text-cid-deep" />
       </div>

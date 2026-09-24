@@ -66,75 +66,101 @@ export function TopBar({
         )}
         style={{ transform: 'scaleX(0)' }}
       />
-      <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-4 px-5 md:px-8">
-        <Logo live className="shrink-0" />
+      <div className="page">
+        <div className="flex h-14 items-center gap-3 md:h-16 md:gap-4">
+          <Logo live className="shrink-0" />
 
-        <div className="mx-2 hidden h-6 w-px bg-hairline md:block" />
+          <div className="mx-1 hidden h-6 w-px bg-hairline md:block" />
 
-        <NavTabs route={route} alerts={alerts} />
+          <div className="hidden md:block">
+            <NavTabs route={route} alerts={alerts} />
+          </div>
 
-        <div className="ml-auto flex items-center gap-2">
-          <span className="hidden items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] text-ink-2 lg:inline-flex">
-            <LockKeyhole className="size-3.5" strokeWidth={1.75} />
-            Datos anonimizados
-          </span>
+          <div className="ml-auto flex items-center gap-1 sm:gap-2">
+            <span className="hidden items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] text-ink-2 xl:inline-flex">
+              <LockKeyhole className="size-3.5" strokeWidth={1.75} />
+              Datos anonimizados
+            </span>
 
-          {panorama && active && (
-            <label className="relative">
-              <span className="sr-only">Fecha del feed</span>
-              <select
-                value={active}
-                onChange={(e) => onSelect(e.target.value)}
-                disabled={dates.length < 2}
-                className="no-print appearance-none rounded-full bg-ivory-sunken py-1.5 pr-4 pl-3.5 text-[13px] font-medium text-ink disabled:cursor-default enabled:cursor-pointer enabled:pr-8"
-              >
-                {dates.map((d) => (
-                  <option key={d} value={d}>
-                    {fmtDate(d, 'short')}
-                  </option>
-                ))}
-              </select>
-              {dates.length > 1 && (
-                <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[10px] text-ink-3">▾</span>
-              )}
-            </label>
-          )}
+            {panorama && active && (
+              <FeedSelect dates={dates} active={active} onSelect={onSelect} className="hidden md:block" />
+            )}
 
-          <input
-            ref={input}
-            type="file"
-            accept=".jsonl,.json,application/json"
-            multiple
-            className="hidden"
-            onChange={(e) => {
-              if (e.target.files?.length) onFiles(e.target.files)
-              e.target.value = ''
-            }}
-          />
-          {panorama && (
-            <>
-              <IconButton label="Cargar feed diario (.jsonl)" onClick={() => input.current?.click()}>
-                <ArrowUpFromLine className="size-4" strokeWidth={1.75} />
-              </IconButton>
-              <IconButton label="Personalizar módulos" onClick={onCustomize}>
-                <SlidersHorizontal className="size-4" strokeWidth={1.75} />
-              </IconButton>
-            </>
-          )}
-          <button
-            onClick={() => window.print()}
-            className="group press no-print relative ml-1 inline-flex items-center gap-2 overflow-hidden rounded-full bg-ink px-4 py-2 text-[13px] font-medium text-ivory shadow-[0_1px_2px_rgb(23_24_23/0.2)]"
-          >
-            <span
-              aria-hidden
-              className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 transition-[left,opacity] duration-700 ease-apple group-hover:left-[120%] group-hover:opacity-100"
+            <input
+              ref={input}
+              type="file"
+              accept=".jsonl,.json,application/json"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files?.length) onFiles(e.target.files)
+                e.target.value = ''
+              }}
             />
-            <Printer className="size-4 transition-transform duration-300 ease-apple group-hover:-translate-y-px" strokeWidth={1.75} />
-            <span className="hidden sm:inline">Exportar reporte</span>
-          </button>
+            {panorama && (
+              <>
+                <IconButton label="Cargar feed diario (.jsonl)" onClick={() => input.current?.click()}>
+                  <ArrowUpFromLine className="size-4" strokeWidth={1.75} />
+                </IconButton>
+                <IconButton label="Personalizar módulos" onClick={onCustomize}>
+                  <SlidersHorizontal className="size-4" strokeWidth={1.75} />
+                </IconButton>
+              </>
+            )}
+            <button
+              onClick={() => window.print()}
+              aria-label="Exportar reporte"
+              className="group press no-print relative ml-1 inline-flex size-9 items-center justify-center gap-2 overflow-hidden rounded-full bg-ink text-[13px] font-medium text-ivory shadow-[0_1px_2px_rgb(23_24_23/0.2)] lg:size-auto lg:px-4 lg:py-2"
+            >
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 transition-[left,opacity] duration-700 ease-apple group-hover:left-[120%] group-hover:opacity-100"
+              />
+              <Printer className="size-4 transition-transform duration-300 ease-apple group-hover:-translate-y-px" strokeWidth={1.75} />
+              <span className="hidden lg:inline">Exportar reporte</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between gap-3 pb-2.5 md:hidden">
+          <NavTabs route={route} alerts={alerts} />
+          {panorama && active && <FeedSelect dates={dates} active={active} onSelect={onSelect} />}
         </div>
       </div>
     </header>
+  )
+}
+
+function FeedSelect({
+  dates,
+  active,
+  onSelect,
+  className,
+}: {
+  dates: string[]
+  active: string
+  onSelect: (d: string) => void
+  className?: string
+}) {
+  return (
+    <label className={clsx('relative shrink-0', className)}>
+      <span className="sr-only">Fecha del feed</span>
+      <select
+        value={active}
+        onChange={(e) => onSelect(e.target.value)}
+        disabled={dates.length < 2}
+        className="no-print appearance-none rounded-full bg-ivory-sunken py-1.5 pr-4 pl-3.5 text-[13px] font-medium text-ink disabled:cursor-default enabled:cursor-pointer enabled:pr-8"
+      >
+        {dates.map((d) => (
+          <option key={d} value={d}>
+            {fmtDate(d, 'short')}
+          </option>
+        ))}
+      </select>
+      {dates.length > 1 && (
+        <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[10px] text-ink-3">▾</span>
+      )}
+    </label>
   )
 }
 
@@ -153,7 +179,7 @@ function NavTabs({ route, alerts }: { route: Route; alerts: number }) {
   }, [route])
 
   return (
-    <nav aria-label="Secciones" className="no-print relative inline-flex rounded-full bg-ivory-sunken/80 p-[3px] text-[13px]">
+    <nav aria-label="Secciones" className="no-print relative inline-flex shrink-0 rounded-full bg-ivory-sunken/80 p-[3px] text-[13px]">
       <span
         aria-hidden
         className={clsx(

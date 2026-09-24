@@ -48,14 +48,14 @@ export function AttentionCard({
                     <StatusDot status={status} className="size-2.5!" />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13.5px] text-ink">
+                    <span className="block text-[13.5px] text-ink @lg:truncate">
                       <span className="font-semibold">{inc.provider.name}</span>
                       <span className="text-ink-3"> · </span>
                       {title}
                     </span>
-                    <span className="block truncate text-[12px] text-ink-2">{detail}</span>
+                    <span className="block text-[12px] text-ink-2 @lg:truncate">{detail}</span>
                   </span>
-                  <span className="hidden shrink-0 text-right text-[11.5px] text-ink-3 sm:block">
+                  <span className="hidden shrink-0 text-right text-[11.5px] text-ink-3 @md:block">
                     {inc.kind === 'pending' ? 'hoy' : inc.count > 1 ? `desde ${dayLabel(inc.from)}` : dayLabel(inc.from)}
                   </span>
                   <ChevronRight className="size-4 shrink-0 text-ink-3 transition-transform duration-300 ease-apple group-hover:translate-x-0.5" />

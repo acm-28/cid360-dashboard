@@ -1,8 +1,10 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import { ChevronDown, ChevronUp, X } from 'lucide-react'
 import clsx from 'clsx'
+import { SheetHandle } from './ui'
 import { MODULES, type ModuleId } from '../lib/useLayout'
 import { prefersReducedMotion } from '../lib/motion'
+import { useScrollLock } from '../lib/useScrollLock'
 
 export function CustomizePanel({
   open,
@@ -23,6 +25,7 @@ export function CustomizePanel({
 }) {
   const items = useRef(new Map<string, HTMLLIElement>())
   const tops = useRef(new Map<string, number>())
+  useScrollLock(open)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
@@ -60,11 +63,12 @@ export function CustomizePanel({
         role="dialog"
         aria-label="Personalizar módulos"
         className={clsx(
-          'absolute top-3 right-3 bottom-3 flex w-[360px] max-w-[calc(100vw-24px)] flex-col rounded-[24px] bg-ivory-raised shadow-lift transition-transform',
-          open ? 'translate-x-0 duration-[560ms] ease-spring' : 'translate-x-[110%] duration-300 ease-apple',
+          'sheet absolute flex flex-col rounded-[24px] bg-ivory-raised shadow-lift transition-[translate] sm:w-[360px]',
+          open ? 'duration-[560ms] ease-spring' : 'sheet-closed duration-300 ease-apple',
         )}
       >
-        <header className="flex items-center justify-between px-6 pt-6 pb-4">
+        <SheetHandle />
+        <header className="flex items-center justify-between px-5 pt-4 pb-4 sm:px-6 sm:pt-6">
           <div>
             <h2 className="text-[17px] font-semibold tracking-[-0.01em]">Personalizar</h2>
             <p className="text-[12.5px] text-ink-2">Elegí qué módulos ver y en qué orden.</p>
@@ -77,7 +81,7 @@ export function CustomizePanel({
             <X className="size-4 transition-transform duration-300 ease-apple group-hover:rotate-90" strokeWidth={2} />
           </button>
         </header>
-        <ul className="flex-1 overflow-y-auto px-3" data-reveal={open ? 'in' : 'pending'}>
+        <ul className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 sm:px-3" data-reveal={open ? 'in' : 'pending'}>
           {order.map((id, i) => {
             const meta = MODULES.find((m) => m.id === id)!
             const visible = !hidden.includes(id)
@@ -105,7 +109,7 @@ export function CustomizePanel({
             )
           })}
         </ul>
-        <footer className="border-t border-hairline px-6 py-4">
+        <footer className="border-t border-hairline px-5 py-4 sm:px-6">
           <button onClick={onReset} className="text-[13px] font-medium text-cid-deep hover:underline">
             Restablecer diseño predeterminado
           </button>

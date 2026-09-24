@@ -13,7 +13,7 @@ export function PlansCard({ data }: { data: ReturnType<typeof plans> }) {
       title="Planes alternativos"
       subtitle="Frecuencia con que se ofrecen alternativas de pago en contactos efectivos y su relación con el resultado."
     >
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3">
         <Stat
           i={0}
           label="Contactos con oferta de plan"
@@ -38,11 +38,11 @@ export function PlansCard({ data }: { data: ReturnType<typeof plans> }) {
           return (
             <div
               key={r.id}
-              className="stagger-item focus-row group grid grid-cols-[120px_minmax(0,1fr)_auto] items-center gap-3"
+              className="stagger-item focus-row group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 @lg:grid-cols-[120px_minmax(0,1fr)_auto]"
               style={{ ['--i' as string]: i + 2 }}
             >
               <span className="truncate text-[13px] font-medium text-ink">{r.label}</span>
-              <div className="h-2 overflow-hidden rounded-full bg-ivory-sunken">
+              <div className="order-last col-span-2 h-2 overflow-hidden rounded-full bg-ivory-sunken @lg:order-none @lg:col-span-1">
                 <div
                   className="grow-x h-full rounded-full transition-[width,background-color] duration-700 ease-apple"
                   style={{
@@ -54,7 +54,7 @@ export function PlansCard({ data }: { data: ReturnType<typeof plans> }) {
                   {!lead && <div className="h-full w-full bg-cid-light transition-colors duration-300 group-hover:bg-cid-mid" />}
                 </div>
               </div>
-              <span className="num w-[132px] text-right text-[12px] text-ink-2">
+              <span className="num text-right text-[12px] whitespace-nowrap text-ink-2 @lg:w-[132px]">
                 <b className="font-semibold text-ink">{fmtInt(r.count)}</b> · {fmtPct(r.favorable, 0)} favorable
               </span>
             </div>
@@ -82,14 +82,14 @@ function Stat({
 }) {
   return (
     <div
-      className="stagger-item rounded-[16px] bg-ivory px-4 py-3.5 transition-colors duration-300 ease-apple hover:bg-white"
+      className="stagger-item min-w-0 rounded-[16px] bg-ivory px-3 py-3 transition-colors duration-300 ease-apple hover:bg-white sm:px-4 sm:py-3.5"
       style={{ ['--i' as string]: i }}
     >
       <div className="text-[11.5px] font-medium text-ink-2">{label}</div>
       <AnimatedNumber
         value={value}
         format={format}
-        className={`num mt-1 block text-[26px] leading-tight font-semibold ${accent ? 'text-cid-deep' : 'text-ink'}`}
+        className={`num mt-1 block text-[22px] leading-tight font-semibold sm:text-[26px] ${accent ? 'text-cid-deep' : 'text-ink'}`}
       />
       <div className="num mt-0.5 text-[11.5px] text-ink-3">{caption}</div>
     </div>

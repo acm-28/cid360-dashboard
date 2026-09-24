@@ -96,7 +96,10 @@ export function DynamicsCard({ records }: { records: MacroRecord[] }) {
                       title="Media"
                     />
                     {hover === g.probability && (
-                      <div className="bubble pop-in absolute bottom-full z-10 -mb-1 flex gap-4 bg-white px-3 py-2 text-[11.5px] shadow-lift" style={{ left: `${Math.min(x(s.q1), 60)}%` }}>
+                      <div
+                        className="bubble pop-in absolute right-0 bottom-full left-0 z-10 -mb-1 flex flex-wrap justify-between gap-x-4 gap-y-0.5 bg-white px-3 py-2 text-[11.5px] shadow-lift @lg:right-auto @lg:left-(--tip-left) @lg:max-w-[calc(100%-var(--tip-left))] @lg:justify-start"
+                        style={{ ['--tip-left' as string]: `${Math.min(x(s.q1), 60)}%` }}
+                      >
                         {[
                           ['Q1', s.q1],
                           ['Mediana', s.median],
@@ -117,8 +120,12 @@ export function DynamicsCard({ records }: { records: MacroRecord[] }) {
         })}
 
         <div className="relative mt-1 ml-[76px] h-5">
-          {ticks.map((t) => (
-            <span key={t} className="num absolute -translate-x-1/2 text-[11px] text-ink-3" style={{ left: `${x(t)}%` }}>
+          {ticks.map((t, i) => (
+            <span
+              key={t}
+              className={`num absolute -translate-x-1/2 text-[11px] text-ink-3 ${ticks.length > 6 && i % 2 ? 'hidden @lg:inline' : ''}`}
+              style={{ left: `${x(t)}%` }}
+            >
               {fmtDec(t).replace(/,0$/, '')}
             </span>
           ))}
@@ -128,7 +135,7 @@ export function DynamicsCard({ records }: { records: MacroRecord[] }) {
         <span>
           {meta.label} <span className="text-ink-3">({meta.unit})</span>
         </span>
-        <span className="inline-flex items-center gap-3 text-ink-3">
+        <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 text-ink-3">
           <span className="inline-flex items-center gap-1.5">
             <span className="h-3 w-[2px] rounded-full bg-ink-3" /> Mediana
           </span>

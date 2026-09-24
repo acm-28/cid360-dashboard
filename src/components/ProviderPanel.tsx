@@ -1,9 +1,11 @@
 import { useEffect } from 'react'
 import clsx from 'clsx'
 import { X } from 'lucide-react'
+import { SheetHandle } from './ui'
 import { StatusDot, rateColor, rateTone } from './DeliveryCalendarCard'
 import { STATUS, dayLabel, describe, inRange, lastOk, tally, type Incident, type Provider } from '../lib/deliveries'
 import { fmtDate, fmtInt, fmtPct } from '../lib/format'
+import { useScrollLock } from '../lib/useScrollLock'
 
 export function ProviderPanel({
   provider,
@@ -26,6 +28,8 @@ export function ProviderPanel({
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
+  useScrollLock(open)
+
   const batches = provider ? inRange(provider, days) : []
   const t = tally(batches)
   const last = provider ? lastOk(provider) : undefined
@@ -47,13 +51,14 @@ export function ProviderPanel({
         role="dialog"
         aria-label={provider ? `Historial de ${provider.name}` : 'Historial del proveedor'}
         className={clsx(
-          'absolute top-3 right-3 bottom-3 flex w-[400px] max-w-[calc(100vw-24px)] flex-col rounded-[24px] bg-ivory-raised shadow-lift transition-transform',
-          open ? 'translate-x-0 duration-[560ms] ease-spring' : 'translate-x-[110%] duration-300 ease-apple',
+          'sheet absolute flex flex-col rounded-[24px] bg-ivory-raised shadow-lift transition-[translate] sm:w-[400px]',
+          open ? 'duration-[560ms] ease-spring' : 'sheet-closed duration-300 ease-apple',
         )}
       >
+        <SheetHandle />
         {provider && (
           <>
-            <header className="flex items-start justify-between gap-4 px-6 pt-6 pb-5">
+            <header className="flex items-start justify-between gap-4 px-5 pt-4 pb-4 sm:px-6 sm:pt-6 sm:pb-5">
               <div>
                 <div className="eyebrow mb-1">Proveedor</div>
                 <h2 className="text-[22px] font-semibold tracking-[-0.02em]">{provider.name}</h2>
@@ -71,7 +76,7 @@ export function ProviderPanel({
               </button>
             </header>
 
-            <div className="flex-1 overflow-y-auto px-6 pb-6" data-reveal={open ? 'in' : 'pending'}>
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-6 sm:px-6" data-reveal={open ? 'in' : 'pending'}>
               {incident && (
                 <div
                   className={clsx(

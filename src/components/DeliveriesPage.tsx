@@ -60,16 +60,16 @@ export function DeliveriesPage() {
   ].join(' ')
 
   return (
-    <main className="mx-auto max-w-[1440px] px-5 pb-20 md:px-8">
+    <main className="page pb-16 md:pb-20">
       <div className="hidden print:block print:pt-2">
         <Logo />
       </div>
 
-      <section className="pt-10 pb-8 md:pt-14">
+      <section className="pt-7 pb-7 sm:pt-10 sm:pb-8 md:pt-14">
         <div className="fade-in mb-3 text-[13px] font-medium text-ink-2">
           {fmtDate(feed.asOf)} · actualizado a las {feed.updatedAt} h
         </div>
-        <h1 className="max-w-[24ch] text-[34px] leading-[1.08] font-semibold tracking-[-0.035em] text-ink md:text-[48px]">
+        <h1 className="max-w-[24ch] text-[30px] leading-[1.08] font-semibold tracking-[-0.035em] text-ink sm:text-[36px] md:text-[44px] lg:text-[48px]">
           {deliveredToday === active.length ? (
             <Words text={`Los ${active.length} proveedores entregaron hoy un lote válido.`} />
           ) : (
@@ -86,7 +86,7 @@ export function DeliveriesPage() {
         </p>
       </section>
 
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <Tile
           label="Cumplimiento del período"
           value={view.t.rate * 100}
@@ -129,7 +129,7 @@ export function DeliveriesPage() {
           unit={`/${active.length}`}
           caption="Con su último lote válido"
         >
-          <div className="flex h-8 flex-wrap content-end gap-x-3 gap-y-1 text-[11.5px] text-ink-2">
+          <div className="flex min-h-8 flex-wrap content-end gap-x-3 gap-y-1 text-[11.5px] text-ink-2">
             {active.map((p) => (
               <button
                 key={p.id}
@@ -147,7 +147,7 @@ export function DeliveriesPage() {
         </Tile>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-12">
+      <div className="mt-3 grid grid-cols-1 gap-3 sm:mt-4 sm:gap-4 lg:grid-cols-12">
         <div className="flex min-w-0 lg:col-span-12 [&>section]:flex-1">
           <DeliveryCalendarCard
             feed={feed}
@@ -211,8 +211,13 @@ function Tile({
   const [ref, visible] = useReveal<HTMLElement>()
   return (
     <RevealContext.Provider value={visible}>
-      <article ref={ref} data-reveal={visible ? 'in' : 'pending'} onPointerMove={spotlight} className="card flex flex-col p-5">
-        <div className="flex items-center justify-between gap-2">
+      <article
+        ref={ref}
+        data-reveal={visible ? 'in' : 'pending'}
+        onPointerMove={spotlight}
+        className="card flex min-w-0 flex-col p-4 sm:p-5"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
           <span className="text-[12.5px] font-medium text-ink-2">{label}</span>
           {delta}
         </div>
@@ -220,9 +225,12 @@ function Tile({
           <AnimatedNumber
             value={value}
             format={format}
-            className={clsx('num text-[40px] leading-none font-medium', accent ? 'text-cid-deep' : 'text-ink')}
+            className={clsx(
+              'num text-[30px] leading-none font-medium sm:text-[36px] lg:text-[40px]',
+              accent ? 'text-cid-deep' : 'text-ink',
+            )}
           />
-          {unit && <span className="text-[15px] font-medium text-ink-3">{unit}</span>}
+          {unit && <span className="text-[13px] font-medium text-ink-3 sm:text-[15px]">{unit}</span>}
         </div>
         <div className="mt-4">{children}</div>
         <div className="mt-2 text-[12px] text-ink-2">{caption}</div>
