@@ -17,6 +17,7 @@
   --color-cid-soft: #ffe7d6;
   --color-positive: #2f7d5b;
   --color-negative: #b8412e;
+  --color-caution: #d98a1c;
 
   --shadow-card: 0 1px 2px rgb(29 29 31 / 0.04), 0 8px 24px rgb(29 29 31 / 0.04);
   --shadow-lift: 0 1px 2px rgb(29 29 31 / 0.05), 0 14px 36px rgb(29 29 31 / 0.08);
@@ -167,6 +168,22 @@
   }
 }
 
+[data-reveal='pending'] .grow-y {
+  transform: scaleY(0);
+}
+.grow-y {
+  transform-origin: center bottom;
+}
+[data-reveal='in'] .grow-y {
+  animation: grow-y 900ms var(--ease-apple) backwards;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 220ms + var(--i, 0) * 16ms);
+}
+@keyframes grow-y {
+  from {
+    transform: scaleY(0);
+  }
+}
+
 [data-reveal='pending'] .ring-progress {
   stroke-dasharray: 0 999;
 }
@@ -218,6 +235,27 @@
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+/* Delivery calendar: dots pop in row by row, sweeping left to right. */
+[data-reveal='pending'] .dot-in {
+  opacity: 0;
+}
+[data-reveal='in'] .dot-in {
+  animation: dot-pop 520ms var(--ease-spring) backwards;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 200ms + var(--r, 0) * 70ms + var(--c, 0) * 14ms);
+}
+.pending-pulse {
+  animation: pending-pulse 2.4s var(--ease-apple) infinite;
+}
+@keyframes pending-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(139 144 140 / 0.4);
+  }
+  60% {
+    box-shadow: 0 0 0 5px rgb(139 144 140 / 0);
   }
 }
 

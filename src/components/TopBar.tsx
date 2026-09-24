@@ -1,22 +1,28 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import { ArrowUpFromLine, LockKeyhole, Printer, SlidersHorizontal } from 'lucide-react'
 import { Logo } from './Logo'
 import { fmtDate } from '../lib/format'
+import { ROUTES, type Route } from '../lib/useRoute'
 
 export function TopBar({
+  route,
+  alerts,
   dates,
   active,
   onSelect,
   onFiles,
   onCustomize,
 }: {
+  route: Route
+  alerts: number
   dates: string[]
   active?: string
   onSelect: (d: string) => void
   onFiles: (f: FileList) => void
   onCustomize: () => void
 }) {
+  const panorama = route === 'panorama'
   const input = useRef<HTMLInputElement>(null)
   const progress = useRef<HTMLDivElement>(null)
   const [scrolled, setScrolled] = useState(false)
@@ -65,11 +71,7 @@ export function TopBar({
 
         <div className="mx-2 hidden h-6 w-px bg-hairline md:block" />
 
-        <nav className="hidden text-[13px] text-ink-2 md:block">
-          <span className="font-medium text-ink">Panorama de gestión</span>
-          <span className="mx-2 text-ink-3">/</span>
-          Cobranzas
-        </nav>
+        <NavTabs route={route} alerts={alerts} />
 
         <div className="ml-auto flex items-center gap-2">
           <span className="hidden items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] text-ink-2 lg:inline-flex">
@@ -77,7 +79,7 @@ export function TopBar({
             Datos anonimizados
           </span>
 
-          {active && (
+          {panorama && active && (
             <label className="relative">
               <span className="sr-only">Fecha del feed</span>
               <select
@@ -109,12 +111,16 @@ export function TopBar({
               e.target.value = ''
             }}
           />
-          <IconButton label="Cargar feed diario (.jsonl)" onClick={() => input.current?.click()}>
-            <ArrowUpFromLine className="size-4" strokeWidth={1.75} />
-          </IconButton>
-          <IconButton label="Personalizar módulos" onClick={onCustomize}>
-            <SlidersHorizontal className="size-4" strokeWidth={1.75} />
-          </IconButton>
+          {panorama && (
+            <>
+              <IconButton label="Cargar feed diario (.jsonl)" onClick={() => input.current?.click()}>
+                <ArrowUpFromLine className="size-4" strokeWidth={1.75} />
+              </IconButton>
+              <IconButton label="Personalizar módulos" onClick={onCustomize}>
+                <SlidersHorizontal className="size-4" strokeWidth={1.75} />
+              </IconButton>
+            </>
+          )}
           <button
             onClick={() => window.print()}
             className="group press no-print relative ml-1 inline-flex items-center gap-2 overflow-hidden rounded-full bg-ink px-4 py-2 text-[13px] font-medium text-ivory shadow-[0_1px_2px_rgb(23_24_23/0.2)]"
@@ -129,6 +135,57 @@ export function TopBar({
         </div>
       </div>
     </header>
+  )
+}
+
+function NavTabs({ route, alerts }: { route: Route; alerts: number }) {
+  const refs = useRef<Partial<Record<Route, HTMLAnchorElement | null>>>({})
+  const [pill, setPill] = useState({ left: 0, width: 0 })
+
+  useLayoutEffect(() => {
+    const measure = () => {
+      const el = refs.current[route]
+      if (el) setPill({ left: el.offsetLeft, width: el.offsetWidth })
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [route])
+
+  return (
+    <nav aria-label="Secciones" className="no-print relative inline-flex rounded-full bg-ivory-sunken/80 p-[3px] text-[13px]">
+      <span
+        aria-hidden
+        className={clsx(
+          'absolute top-[3px] bottom-[3px] rounded-full bg-white shadow-pill',
+          pill.width > 0 && 'transition-[left,width] duration-[460ms] ease-spring',
+        )}
+        style={{ left: pill.left, width: pill.width }}
+      />
+      {(Object.keys(ROUTES) as Route[]).map((id) => (
+        <a
+          key={id}
+          ref={(el) => {
+            refs.current[id] = el
+          }}
+          href={ROUTES[id].href}
+          aria-current={id === route ? 'page' : undefined}
+          title={id === 'envios' && alerts ? `${alerts} ${alerts === 1 ? 'incidencia abierta' : 'incidencias abiertas'}` : undefined}
+          className={clsx(
+            'press relative z-10 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 font-medium whitespace-nowrap',
+            id === route ? 'text-ink' : 'text-ink-2 hover:text-ink',
+          )}
+        >
+          {ROUTES[id].label}
+          {id === 'envios' && alerts > 0 && (
+            <span className="relative flex size-1.5">
+              <span className="absolute inset-0 animate-ping rounded-full bg-negative/50 [animation-duration:2.4s]" />
+              <span className="relative size-1.5 rounded-full bg-negative" />
+            </span>
+          )}
+        </a>
+      ))}
+    </nav>
   )
 }
 

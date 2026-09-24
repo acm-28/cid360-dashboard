@@ -1,6 +1,6 @@
-import { Fragment, type Dispatch, type SetStateAction } from 'react'
+import type { Dispatch, SetStateAction } from 'react'
 import { RotateCcw } from 'lucide-react'
-import { Segmented } from './ui'
+import { Segmented, Words } from './ui'
 import { AnimatedNumber } from '../lib/motion'
 import { DEFAULT_FILTERS, type Filters, type Kpis } from '../lib/metrics'
 import { fmtDate, fmtInt, fmtPct } from '../lib/format'
@@ -105,16 +105,6 @@ export function Hero({
       </div>
     </section>
   )
-}
-
-function Words({ text, offset = 0 }: { text: string; offset?: number }) {
-  return text.split(' ').map((w, i) => (
-    <Fragment key={`${w}-${i}`}>
-      <span className="word" style={{ ['--i' as string]: i + offset }}>
-        {w}
-      </span>{' '}
-    </Fragment>
-  ))
 }
 
 function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {

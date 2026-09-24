@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { Fragment, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import clsx from 'clsx'
 import { RevealContext, spotlight, useReveal } from '../lib/motion'
 
@@ -59,6 +59,17 @@ export function Card({
     </section>
     </RevealContext.Provider>
   )
+}
+
+/** Headline words that settle in one after another (see `.word`). */
+export function Words({ text, offset = 0 }: { text: string; offset?: number }) {
+  return text.split(' ').map((w, i) => (
+    <Fragment key={`${w}-${i}`}>
+      <span className="word" style={{ ['--i' as string]: i + offset }}>
+        {w}
+      </span>{' '}
+    </Fragment>
+  ))
 }
 
 export interface SegmentOption<T extends string> {

@@ -14,6 +14,9 @@ import { SentimentCard } from './components/SentimentCard'
 import { InsightsCard } from './components/InsightsCard'
 import { SimulatorCard } from './components/SimulatorCard'
 import { CustomizePanel } from './components/CustomizePanel'
+import { DeliveriesPage } from './components/DeliveriesPage'
+import { DELIVERIES, incidents } from './lib/deliveries'
+import { useRoute } from './lib/useRoute'
 import { Isotype, Logo } from './components/Logo'
 import { useDatasets } from './lib/useDatasets'
 import { useLayout, type ModuleId } from './lib/useLayout'
@@ -43,7 +46,10 @@ const SPAN: Record<ModuleId, string> = {
   simulator: 'lg:col-span-12',
 }
 
+const alerts = incidents(DELIVERIES).filter((i) => i.kind !== 'pending').length
+
 export default function App() {
+  const route = useRoute()
   const data = useDatasets()
   const layout = useLayout()
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS)
@@ -90,13 +96,15 @@ export default function App() {
   return (
     <div className="min-h-screen">
       <TopBar
+        route={route}
+        alerts={alerts}
         dates={data.dates}
         active={data.current?.date}
         onSelect={data.setActive}
         onFiles={data.loadFiles}
         onCustomize={() => setCustomizing(true)}
       />
-      <DropOverlay onFiles={data.loadFiles} />
+      {route === 'panorama' && <DropOverlay onFiles={data.loadFiles} />}
 
       {data.notice && (
         <div className="toast-in no-print fixed bottom-5 left-1/2 z-40 flex max-w-[calc(100vw-32px)] -translate-x-1/2 items-center gap-3 rounded-full bg-ink px-5 py-2.5 text-[13px] text-ivory shadow-lift">
@@ -107,53 +115,57 @@ export default function App() {
         </div>
       )}
 
-      <main className="mx-auto max-w-[1440px] px-5 pb-20 md:px-8">
-        {data.status.kind === 'error' && !data.current && <EmptyState title="No pudimos cargar los datos" body={data.status.message} />}
-        {!data.current && data.status.kind === 'loading' && <Loading />}
+      {route === 'envios' ? (
+        <DeliveriesPage />
+      ) : (
+        <main className="mx-auto max-w-[1440px] px-5 pb-20 md:px-8">
+          {data.status.kind === 'error' && !data.current && <EmptyState title="No pudimos cargar los datos" body={data.status.message} />}
+          {!data.current && data.status.kind === 'loading' && <Loading />}
 
-        {data.current && (
-          <>
-            <div className="hidden print:block print:pt-2">
-              <Logo />
-            </div>
-            <Hero
-              date={data.current.date}
-              kpis={view?.kpis ?? kpis([])}
-              filtered={filtered}
-              total={all.length}
-              filters={filters}
-              onFilters={setFilters}
-            />
+          {data.current && (
+            <>
+              <div className="hidden print:block print:pt-2">
+                <Logo />
+              </div>
+              <Hero
+                date={data.current.date}
+                kpis={view?.kpis ?? kpis([])}
+                filtered={filtered}
+                total={all.length}
+                filters={filters}
+                onFilters={setFilters}
+              />
 
-            {view && (
-              <>
-                <KpiRow kpis={view.kpis} previous={previousKpis} />
-                <div className="mt-4 grid grid-flow-dense grid-cols-1 gap-4 lg:grid-cols-12">
-                  {layout.order
-                    .filter((id) => !layout.hidden.includes(id))
-                    .map((id) => (
-                      <div key={id} className={`flex min-w-0 [&>section]:flex-1 ${SPAN[id]}`}>
-                        {modules[id]()}
-                      </div>
-                    ))}
-                </div>
-              </>
-            )}
+              {view && (
+                <>
+                  <KpiRow kpis={view.kpis} previous={previousKpis} />
+                  <div className="mt-4 grid grid-flow-dense grid-cols-1 gap-4 lg:grid-cols-12">
+                    {layout.order
+                      .filter((id) => !layout.hidden.includes(id))
+                      .map((id) => (
+                        <div key={id} className={`flex min-w-0 [&>section]:flex-1 ${SPAN[id]}`}>
+                          {modules[id]()}
+                        </div>
+                      ))}
+                  </div>
+                </>
+              )}
 
-            <footer className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-hairline pt-6 text-[12px] text-ink-3">
-              <Logo compact />
-              <p className="max-w-[80ch]">
-                Feed del {fmtDate(data.current.date).toLowerCase()} · {data.current.source}. Métricas agregadas: no incluyen identificadores de
-                clientes, gestores ni grabaciones. Contacto efectivo: más de 45 s de conversación. Probabilidad favorable: buena o
-                regular según el modelo de CID360.
-              </p>
-            </footer>
-          </>
-        )}
-      </main>
+              <footer className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-hairline pt-6 text-[12px] text-ink-3">
+                <Logo compact />
+                <p className="max-w-[80ch]">
+                  Feed del {fmtDate(data.current.date).toLowerCase()} · {data.current.source}. Métricas agregadas: no incluyen identificadores
+                  de clientes, gestores ni grabaciones. Contacto efectivo: más de 45 s de conversación. Probabilidad favorable: buena o
+                  regular según el modelo de CID360.
+                </p>
+              </footer>
+            </>
+          )}
+        </main>
+      )}
 
       <CustomizePanel
-        open={customizing}
+        open={customizing && route === 'panorama'}
         onClose={() => setCustomizing(false)}
         order={layout.order}
         hidden={layout.hidden}
