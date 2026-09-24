@@ -99,7 +99,7 @@ export default function App() {
       <DropOverlay onFiles={data.loadFiles} />
 
       {data.notice && (
-        <div className="no-print fixed bottom-5 left-1/2 z-40 flex max-w-[calc(100vw-32px)] -translate-x-1/2 items-center gap-3 rounded-full bg-ink px-5 py-2.5 text-[13px] text-ivory shadow-lift">
+        <div className="toast-in no-print fixed bottom-5 left-1/2 z-40 flex max-w-[calc(100vw-32px)] -translate-x-1/2 items-center gap-3 rounded-full bg-ink px-5 py-2.5 text-[13px] text-ivory shadow-lift">
           <span className="truncate">{data.notice}</span>
           <button onClick={data.clearNotice} aria-label="Cerrar aviso" className="text-ivory/60 hover:text-ivory">
             <X className="size-4" />
@@ -168,8 +168,8 @@ export default function App() {
 function Loading() {
   return (
     <div className="grid min-h-[70vh] place-items-center">
-      <div className="flex flex-col items-center gap-4">
-        <Isotype gradient className="h-12 w-auto animate-pulse" />
+      <div className="fade-in flex flex-col items-center gap-4">
+        <Isotype gradient live className="h-12 w-auto" />
         <span className="text-[13px] text-ink-2">Preparando el panorama del día…</span>
       </div>
     </div>

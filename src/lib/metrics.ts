@@ -76,12 +76,15 @@ export interface Kpis {
   talkRatio: number
   deadAir: number
   avgDuration: number
+  sparkHours: number[]
   spark: { total: number[]; contact: number[]; favorable: number[]; score: number[]; talk: number[]; dead: number[] }
 }
 
 export function kpis(records: MacroRecord[]): Kpis {
-  const hours = [...byHour(records).values()]
+  const grouped = byHour(records)
+  const hours = [...grouped.values()]
   return {
+    sparkHours: [...grouped.keys()],
     total: records.length,
     contactRate: rate(records, isEffective),
     favorableRate: rate(records, isFavorable),

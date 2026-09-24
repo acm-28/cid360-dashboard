@@ -18,8 +18,8 @@ export function DurationCard({ rows }: { rows: ReturnType<typeof durationMix> })
       subtitle="Distribución de la probabilidad de pago según cuánto dura la conversación."
     >
       <div className="flex flex-1 flex-col justify-center gap-5">
-        {rows.map((r) => (
-          <div key={r.id}>
+        {rows.map((r, i) => (
+          <div key={r.id} className="stagger-item focus-row" style={{ ['--i' as string]: i }}>
             <div className="mb-1.5 flex items-baseline justify-between">
               <div className="flex items-baseline gap-2">
                 <span className="num text-[13px] font-semibold text-ink">{r.label}</span>
@@ -27,7 +27,7 @@ export function DurationCard({ rows }: { rows: ReturnType<typeof durationMix> })
               </div>
               <span className="num text-[12px] text-ink-3">{fmtInt(r.count)} gestiones</span>
             </div>
-            <div className="flex h-7 gap-[2px] overflow-hidden rounded-[8px]">
+            <div className="grow-x flex h-7 gap-[2px] overflow-hidden rounded-[8px]" style={{ ['--i' as string]: i }}>
               {r.count === 0 ? (
                 <div className="flex-1 bg-ivory-sunken" />
               ) : (

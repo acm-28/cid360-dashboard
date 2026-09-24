@@ -5,6 +5,7 @@ import type { MacroRecord } from '../lib/types'
 import { fmtDec, fmtInt } from '../lib/format'
 
 const COLORS = { good: CHART.cid, regular: CHART.cidMid, bad: CHART.mutedDeep }
+const SLIDE = 'transition-[left,width] duration-700 ease-apple'
 
 function niceTicks(min: number, max: number, count = 5) {
   const span = max - min || 1
@@ -53,13 +54,14 @@ export function DynamicsCard({ records }: { records: MacroRecord[] }) {
           ))}
         </div>
 
-        {groups.map((g) => {
+        {groups.map((g, gi) => {
           const s = g.stats
           const color = COLORS[g.probability]
           return (
             <div
               key={g.probability}
-              className="relative flex h-16 items-center"
+              className="stagger-item relative flex h-16 items-center"
+              style={{ ['--i' as string]: gi }}
               onMouseEnter={() => setHover(g.probability)}
               onMouseLeave={() => setHover(null)}
             >
@@ -71,29 +73,30 @@ export function DynamicsCard({ records }: { records: MacroRecord[] }) {
                 {s && (
                   <>
                     <div
-                      className="absolute top-1/2 h-px -translate-y-1/2"
+                      className={`absolute top-1/2 h-px -translate-y-1/2 ${SLIDE}`}
                       style={{ left: `${x(s.min)}%`, width: `${x(s.max) - x(s.min)}%`, background: CHART.mutedDeep }}
                     />
                     {[s.min, s.max].map((v, i) => (
-                      <div key={i} className="absolute top-1/2 h-3 w-px -translate-y-1/2" style={{ left: `${x(v)}%`, background: CHART.mutedDeep }} />
+                      <div key={i} className={`absolute top-1/2 h-3 w-px -translate-y-1/2 ${SLIDE}`} style={{ left: `${x(v)}%`, background: CHART.mutedDeep }} />
                     ))}
                     <div
-                      className="absolute top-1/2 h-7 -translate-y-1/2 rounded-[7px] transition-all duration-500 ease-apple"
+                      className="grow-x absolute top-1/2 h-7 -translate-y-1/2 rounded-[7px] transition-[left,width,opacity] duration-700 ease-apple"
                       style={{
+                        ['--i' as string]: gi,
                         left: `${x(s.q1)}%`,
                         width: `${Math.max(x(s.q3) - x(s.q1), 0.6)}%`,
                         background: color,
                         opacity: hover && hover !== g.probability ? 0.35 : 0.9,
                       }}
                     />
-                    <div className="absolute top-1/2 h-7 w-[2px] -translate-y-1/2 rounded-full bg-white" style={{ left: `${x(s.median)}%` }} />
+                    <div className={`absolute top-1/2 h-7 w-[2px] -translate-y-1/2 rounded-full bg-white ${SLIDE}`} style={{ left: `${x(s.median)}%` }} />
                     <div
-                      className="absolute top-1/2 size-[7px] -translate-x-1/2 -translate-y-1/2 rotate-45 border border-ink bg-white"
+                      className={`absolute top-1/2 size-[7px] -translate-x-1/2 -translate-y-1/2 rotate-45 border border-ink bg-white ${SLIDE}`}
                       style={{ left: `${x(s.mean)}%` }}
                       title="Media"
                     />
                     {hover === g.probability && (
-                      <div className="bubble absolute bottom-full z-10 -mb-1 flex gap-4 bg-white px-3 py-2 text-[11.5px] shadow-lift" style={{ left: `${Math.min(x(s.q1), 60)}%` }}>
+                      <div className="bubble pop-in absolute bottom-full z-10 -mb-1 flex gap-4 bg-white px-3 py-2 text-[11.5px] shadow-lift" style={{ left: `${Math.min(x(s.q1), 60)}%` }}>
                         {[
                           ['Q1', s.q1],
                           ['Mediana', s.median],

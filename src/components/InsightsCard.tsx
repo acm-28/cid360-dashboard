@@ -37,18 +37,20 @@ export function InsightsCard({ records }: { records: MacroRecord[] }) {
         />
       }
     >
-      <div className="flex-1 space-y-3">
+      <div key={view} className="flex-1 space-y-3">
         {data.rows.length === 0 && <p className="text-[13px] text-ink-3">Sin temas identificados en esta selección.</p>}
         {data.rows.map((r, i) => (
-          <div key={r.id} className="group">
+          <div key={r.id} className="stagger-item focus-row group" style={{ ['--i' as string]: i }}>
             <div className="mb-1 flex items-baseline justify-between text-[13px]">
               <span className={i === 0 ? 'font-semibold text-ink' : 'text-ink'}>{r.label}</span>
               <span className="num font-medium text-ink-2">{fmtPct(r.value, 0)}</span>
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-ivory-sunken">
               <div
-                className="h-full rounded-full transition-[width] duration-700 ease-apple"
-                style={{ width: `${(r.value / max) * 100}%`, background: i === 0 ? '#FF6B1A' : '#FFC49E' }}
+                className={`grow-x h-full rounded-full transition-[width,background-color] duration-700 ease-apple ${
+                  i === 0 ? 'bg-cid' : 'bg-cid-light group-hover:bg-cid-mid'
+                }`}
+                style={{ ['--i' as string]: i, width: `${(r.value / max) * 100}%` }}
               />
             </div>
           </div>

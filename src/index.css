@@ -3,13 +3,13 @@
 @theme {
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', system-ui, sans-serif;
 
-  --color-ivory: #f5f3ee;
-  --color-ivory-raised: #fbfaf7;
-  --color-ivory-sunken: #edeae3;
-  --color-hairline: #e4e0d7;
-  --color-ink: #1d1d1f;
-  --color-ink-2: #6e6b66;
-  --color-ink-3: #a19d96;
+  --color-ivory: #f6f7f6;
+  --color-ivory-raised: #fcfcfb;
+  --color-ivory-sunken: #eeefed;
+  --color-hairline: #e2e3de;
+  --color-ink: #171817;
+  --color-ink-2: #5c615e;
+  --color-ink-3: #8b908c;
   --color-cid: #ff6b1a;
   --color-cid-deep: #d9520b;
   --color-cid-mid: #ff9a5c;
@@ -23,6 +23,7 @@
   --shadow-pill: 0 1px 2px rgb(29 29 31 / 0.08), 0 3px 8px rgb(29 29 31 / 0.06);
 
   --ease-apple: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.28, 0.64, 1);
 }
 
 @layer base {
@@ -59,13 +60,245 @@
   color: var(--color-ink-3);
 }
 
+/*
+ * Surface: a soft light follows the cursor inside the card (::before) and along its
+ * 1px edge (::after, masked to the border). Both stay near-invisible until hover.
+ */
 @utility card {
+  position: relative;
+  isolation: isolate;
   background: var(--color-ivory-raised);
   border-radius: 22px;
   box-shadow: var(--shadow-card);
-  transition: box-shadow 240ms var(--ease-apple);
-  &:hover {
-    box-shadow: var(--shadow-lift);
+  transition:
+    opacity 900ms var(--ease-apple) var(--reveal-delay, 0ms),
+    translate 1000ms var(--ease-apple) var(--reveal-delay, 0ms),
+    filter 900ms var(--ease-apple) var(--reveal-delay, 0ms),
+    box-shadow 500ms var(--ease-apple),
+    transform 500ms var(--ease-apple);
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 600ms var(--ease-apple);
+  }
+  &::before {
+    z-index: -1;
+    background: radial-gradient(
+      480px circle at var(--mx, 50%) var(--my, 0%),
+      rgb(255 107 26 / 0.045),
+      transparent 60%
+    );
+  }
+  &::after {
+    padding: 1px;
+    background: radial-gradient(
+      280px circle at var(--mx, 50%) var(--my, 0%),
+      rgb(255 107 26 / 0.34),
+      transparent 70%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+  @media (hover: hover) {
+    &:hover {
+      box-shadow: var(--shadow-lift);
+      transform: translateY(-1px);
+    }
+    &:hover::before,
+    &:hover::after {
+      opacity: 1;
+    }
+  }
+}
+
+[data-reveal='pending'] {
+  opacity: 0;
+  translate: 0 14px;
+  filter: blur(3px);
+}
+
+/* Children stagger in once their surface is revealed; newly mounted rows animate too. */
+[data-reveal='pending'] .stagger-item {
+  opacity: 0;
+}
+[data-reveal='in'] .stagger-item {
+  animation: item-in 700ms var(--ease-apple) backwards;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 160ms + var(--i, 0) * 45ms);
+}
+@keyframes item-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+/* Focus + context: hovering one row quietly recedes its siblings. */
+.focus-row {
+  transition: opacity 320ms var(--ease-apple);
+}
+@media (hover: hover) {
+  :has(> .focus-row:hover) > .focus-row:not(:hover) {
+    opacity: 0.42;
+  }
+}
+
+[data-reveal='pending'] .grow-x {
+  transform: scaleX(0);
+}
+.grow-x {
+  transform-origin: left center;
+}
+[data-reveal='in'] .grow-x {
+  animation: grow-x 1100ms var(--ease-apple) backwards;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 220ms + var(--i, 0) * 60ms);
+}
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+[data-reveal='pending'] .ring-progress {
+  stroke-dasharray: 0 999;
+}
+.ring-progress {
+  transition: stroke-dasharray 1400ms var(--ease-apple) calc(var(--reveal-delay, 0ms) + 250ms + var(--i, 0) * 90ms);
+}
+
+/* Wipe instead of dash-draw: non-scaling strokes ignore pathLength in Chromium. */
+[data-reveal='pending'] .spark-line {
+  clip-path: inset(-4px 100% -4px -4px);
+}
+[data-reveal='in'] .spark-line {
+  animation: wipe 1400ms var(--ease-apple) backwards;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 250ms);
+}
+@keyframes wipe {
+  from {
+    clip-path: inset(-4px 100% -4px -4px);
+  }
+  to {
+    clip-path: inset(-4px -4px -4px -4px);
+  }
+}
+.spark-area,
+.spark-dot {
+  opacity: 0;
+}
+[data-reveal='in'] .spark-area {
+  animation: fade-to 900ms var(--ease-apple) forwards;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 700ms);
+  --to: 0.7;
+}
+[data-reveal='in'] .spark-dot {
+  animation: dot-pop 500ms var(--ease-spring) forwards;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 1450ms);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes fade-to {
+  to {
+    opacity: var(--to, 1);
+  }
+}
+@keyframes dot-pop {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Hero headline: words settle from a soft blur, one after another. */
+.word {
+  display: inline-block;
+  animation: word-in 1000ms var(--ease-apple) both;
+  animation-delay: calc(120ms + var(--i, 0) * 42ms);
+}
+@keyframes word-in {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    translate: 0 0.28em;
+  }
+}
+.fade-in {
+  animation: fade-in 900ms var(--ease-apple) both;
+  animation-delay: var(--delay, 0ms);
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+.pop-in {
+  animation: pop-in 260ms var(--ease-apple) both;
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.97);
+  }
+}
+.toast-in {
+  animation: toast-in 520ms var(--ease-spring) both;
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+  }
+}
+.veil-in {
+  animation: veil-in 280ms var(--ease-apple) both;
+}
+@keyframes veil-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Logo eyes: follow the cursor gently and blink every few seconds. */
+.eyes {
+  transition: transform 500ms var(--ease-apple);
+}
+.blink {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blink 7s infinite;
+}
+@keyframes blink {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+  95.5% {
+    transform: scaleY(0.1);
+  }
+}
+
+@utility press {
+  transition:
+    transform 200ms var(--ease-apple),
+    color 200ms var(--ease-apple),
+    background-color 200ms var(--ease-apple);
+  &:active {
+    transform: scale(0.96);
   }
 }
 
@@ -102,6 +335,16 @@ input[type='range'].slider::-webkit-slider-thumb {
   border-radius: 999px;
   background: #fff;
   box-shadow: var(--shadow-pill), 0 0 0 0.5px rgb(29 29 31 / 0.08);
+  transition:
+    transform 300ms var(--ease-spring),
+    box-shadow 300ms var(--ease-apple);
+}
+input[type='range'].slider:hover::-webkit-slider-thumb {
+  transform: scale(1.08);
+}
+input[type='range'].slider:active::-webkit-slider-thumb {
+  transform: scale(1.14);
+  box-shadow: var(--shadow-pill), 0 0 0 6px rgb(255 107 26 / 0.12);
 }
 input[type='range'].slider::-moz-range-thumb {
   width: 22px;
@@ -110,21 +353,27 @@ input[type='range'].slider::-moz-range-thumb {
   border-radius: 999px;
   background: #fff;
   box-shadow: var(--shadow-pill);
+  transition:
+    transform 300ms var(--ease-spring),
+    box-shadow 300ms var(--ease-apple);
+}
+input[type='range'].slider:active::-moz-range-thumb {
+  transform: scale(1.14);
+  box-shadow: var(--shadow-pill), 0 0 0 6px rgb(255 107 26 / 0.12);
 }
 
 .recharts-wrapper,
 .recharts-surface {
   outline: none;
 }
+.recharts-bar-rectangle path {
+  transition: fill-opacity 260ms var(--ease-apple);
+}
 
 @keyframes rise {
   from {
     opacity: 0;
     transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
   }
 }
 .rise {
@@ -136,7 +385,12 @@ input[type='range'].slider::-moz-range-thumb {
   *::before,
   *::after {
     animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
     transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+  }
+  .blink {
+    animation: none;
   }
 }
 
@@ -155,5 +409,14 @@ input[type='range'].slider::-moz-range-thumb {
     box-shadow: none;
     border: 1px solid var(--color-hairline);
     break-inside: avoid;
+  }
+  .card::before,
+  .card::after {
+    display: none;
+  }
+  [data-reveal] {
+    opacity: 1 !important;
+    translate: none !important;
+    filter: none !important;
   }
 }

@@ -1,12 +1,13 @@
 import { CHART, Card, Legend } from './ui'
 import type { sentiment } from '../lib/metrics'
 import { fmtInt, fmtPct } from '../lib/format'
+import { AnimatedNumber } from '../lib/motion'
 
-const SHARE_COLORS = { positive: CHART.cid, neutral: CHART.muted, negative: '#6E6B66' }
+const SHARE_COLORS = { positive: CHART.cid, neutral: CHART.muted, negative: '#5C615E' }
 
 /** Blends ivory → CID orange; keeps the matrix monochrome instead of a rainbow heatmap. */
 function heat(v: number) {
-  const a = [245, 243, 238]
+  const a = [246, 247, 246]
   const b = [255, 107, 26]
   const t = Math.min(1, v * 1.25)
   return `rgb(${a.map((c, i) => Math.round(c + (b[i] - c) * t)).join(',')})`
@@ -19,15 +20,15 @@ export function SentimentCard({ data }: { data: ReturnType<typeof sentiment> }) 
       title="Sentimiento del cliente"
       subtitle="Tono predominante del cliente frente a la gestión y su cruce con la calidad del resultado de cobranza."
     >
-      <div className="flex h-3 gap-[2px] overflow-hidden rounded-full">
+      <div className="grow-x flex h-3 gap-[2px] overflow-hidden rounded-full">
         {data.share.map((s) => (
           <div key={s.id} className="transition-[flex-basis] duration-700 ease-apple" style={{ flexBasis: `${s.value * 100}%`, background: SHARE_COLORS[s.id] }} />
         ))}
       </div>
       <div className="mt-3 grid grid-cols-3 gap-2">
-        {data.share.map((s) => (
-          <div key={s.id}>
-            <div className="num text-[24px] font-semibold text-ink">{fmtPct(s.value, 0)}</div>
+        {data.share.map((s, i) => (
+          <div key={s.id} className="stagger-item" style={{ ['--i' as string]: i }}>
+            <AnimatedNumber value={s.value} format={(v) => fmtPct(v, 0)} className="num block text-[24px] font-semibold text-ink" />
             <div className="text-[12px] text-ink-2">{s.label}</div>
           </div>
         ))}
@@ -47,16 +48,20 @@ export function SentimentCard({ data }: { data: ReturnType<typeof sentiment> }) 
             </tr>
           </thead>
           <tbody>
-            {data.matrix.map((row) => (
+            {data.matrix.map((row, ri) => (
               <tr key={row.id}>
                 <td className="pr-2 text-left whitespace-nowrap text-ink">
                   {row.label} <span className="num text-ink-3">· {fmtInt(row.n)}</span>
                 </td>
-                {row.cells.map((c) => (
+                {row.cells.map((c, ci) => (
                   <td
                     key={c.id}
-                    className="num h-10 rounded-[8px] text-center font-semibold"
-                    style={{ background: heat(c.value), color: c.value > 0.45 ? '#fff' : '#1D1D1F' }}
+                    className="stagger-item num h-10 rounded-[8px] text-center font-semibold transition-[transform,box-shadow,background-color] duration-300 ease-apple hover:scale-[1.04] hover:shadow-pill"
+                    style={{
+                      ['--i' as string]: 3 + ri + ci,
+                      background: heat(c.value),
+                      color: c.value > 0.45 ? '#fff' : '#171817',
+                    }}
                   >
                     {row.n ? fmtPct(c.value, 0) : '—'}
                   </td>

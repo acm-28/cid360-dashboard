@@ -1,12 +1,13 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import clsx from 'clsx'
+import { RevealContext, spotlight, useReveal } from '../lib/motion'
 
 export const CHART = {
-  ink: '#1D1D1F',
-  axis: '#A19D96',
-  grid: '#E4E0D7',
-  muted: '#D9D4CA',
-  mutedDeep: '#B9B3A8',
+  ink: '#171817',
+  axis: '#8B908C',
+  grid: '#E2E3DE',
+  muted: '#D0D3CE',
+  mutedDeep: '#AEB3AE',
   cid: '#FF6B1A',
   cidMid: '#FF9A5C',
   cidLight: '#FFC49E',
@@ -35,8 +36,15 @@ export function Card({
   children: ReactNode
   className?: string
 }) {
+  const [ref, visible] = useReveal<HTMLElement>()
   return (
-    <section className={clsx('card rise flex min-w-0 flex-col p-5 md:p-7', className)}>
+    <RevealContext.Provider value={visible}>
+    <section
+      ref={ref}
+      data-reveal={visible ? 'in' : 'pending'}
+      onPointerMove={spotlight}
+      className={clsx('card flex min-w-0 flex-col p-5 md:p-7', className)}
+    >
       {(title || actions) && (
         <header className="mb-5 flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
@@ -49,6 +57,7 @@ export function Card({
       )}
       {children}
     </section>
+    </RevealContext.Provider>
   )
 }
 
@@ -96,7 +105,10 @@ export function Segmented<T extends string>({
     >
       <span
         aria-hidden
-        className="absolute top-[3px] bottom-[3px] rounded-full bg-white shadow-pill transition-all duration-300 ease-apple"
+        className={clsx(
+          'absolute top-[3px] bottom-[3px] rounded-full bg-white shadow-pill',
+          pill.width > 0 && 'transition-[left,width] duration-[460ms] ease-spring',
+        )}
         style={{ left: pill.left, width: pill.width }}
       />
       {options.map((o, i) => (
@@ -109,7 +121,7 @@ export function Segmented<T extends string>({
           aria-checked={o.value === value}
           onClick={() => onChange(o.value)}
           className={clsx(
-            'relative z-10 whitespace-nowrap rounded-full font-medium transition-colors duration-200',
+            'press relative z-10 whitespace-nowrap rounded-full font-medium',
             size === 'sm' ? 'px-3 py-1' : 'px-3.5 py-1.5',
             o.value === value ? 'text-ink' : 'text-ink-2 hover:text-ink',
           )}
@@ -139,7 +151,7 @@ export function Legend({ items }: { items: { color: string; label: string; shape
 
 export function TooltipShell({ title, rows }: { title: string; rows: { label: string; value: string; color?: string }[] }) {
   return (
-    <div className="bubble min-w-[160px] bg-white/95 px-3.5 py-2.5 shadow-lift backdrop-blur">
+    <div className="bubble pop-in min-w-[160px] bg-white/95 px-3.5 py-2.5 shadow-lift backdrop-blur">
       <div className="mb-1.5 text-[12px] font-semibold text-ink">{title}</div>
       {rows.map((r) => (
         <div key={r.label} className="flex items-center justify-between gap-4 text-[12px] leading-5">

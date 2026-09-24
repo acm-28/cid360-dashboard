@@ -3,6 +3,7 @@ import { Card } from './ui'
 import { simulate, type Scenario } from '../lib/metrics'
 import type { MacroRecord } from '../lib/types'
 import { fmtInt, fmtPct, fmtPts } from '../lib/format'
+import { AnimatedNumber } from '../lib/motion'
 
 const LEVERS: { id: keyof Scenario; label: string; max: number; step: number; describe: (r: ReturnType<typeof simulate>['refs']) => string }[] = [
   {
@@ -45,7 +46,7 @@ export function SimulatorCard({ records }: { records: MacroRecord[] }) {
             const value = scenario[l.id]
             const gain = sim.levers.find((x) => x.id === l.id)!.gain
             return (
-              <div key={l.id}>
+              <div key={l.id} className="stagger-item" style={{ ['--i' as string]: LEVERS.indexOf(l) }}>
                 <div className="mb-2.5 flex items-baseline justify-between gap-4">
                   <label htmlFor={l.id} className="text-[13.5px] font-medium text-ink">
                     {l.label}
@@ -79,13 +80,21 @@ export function SimulatorCard({ records }: { records: MacroRecord[] }) {
           <div>
             <div className="text-[12.5px] font-medium text-ink-2">Probabilidad favorable proyectada</div>
             <div className="mt-2 flex items-baseline gap-3">
-              <span className="num text-[52px] leading-none font-medium tracking-[-0.03em] text-ink">
-                {fmtPct(sim.projectedRate, 1)}
-              </span>
-              <span className={`num text-[14px] font-semibold ${delta >= 0 ? 'text-cid-deep' : 'text-negative'}`}>{fmtPts(delta)}</span>
+              <AnimatedNumber
+                value={sim.projectedRate}
+                format={(v) => fmtPct(v, 1)}
+                duration={600}
+                className="num text-[52px] leading-none font-medium tracking-[-0.03em] text-ink"
+              />
+              <AnimatedNumber
+                value={delta}
+                format={fmtPts}
+                duration={600}
+                className={`num text-[14px] font-semibold transition-colors duration-300 ${delta >= 0 ? 'text-cid-deep' : 'text-negative'}`}
+              />
             </div>
             <div className="relative mt-6 h-2 rounded-full bg-ivory-sunken">
-              <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${sim.baseRate * 100}%`, background: '#B9B3A8' }} />
+              <div className="grow-x absolute inset-y-0 left-0 rounded-full" style={{ width: `${sim.baseRate * 100}%`, background: '#AEB3AE' }} />
               <div
                 className="absolute inset-y-0 rounded-r-full bg-cid transition-[width] duration-500 ease-apple"
                 style={{ left: `${sim.baseRate * 100}%`, width: `${Math.max(0, delta) * 100}%` }}
@@ -97,10 +106,12 @@ export function SimulatorCard({ records }: { records: MacroRecord[] }) {
             </div>
           </div>
           <div className="mt-6 border-t border-hairline pt-4">
-            <div className="num text-[28px] font-semibold text-ink">
-              {sim.extra >= 0 ? '+' : '−'}
-              {fmtInt(Math.abs(sim.extra))}
-            </div>
+            <AnimatedNumber
+              value={sim.extra}
+              format={(v) => `${v >= 0 ? '+' : '−'}${fmtInt(Math.abs(v))}`}
+              duration={600}
+              className="num block text-[28px] font-semibold text-ink"
+            />
             <div className="text-[12.5px] text-ink-2">gestiones adicionales con probabilidad de pago favorable</div>
           </div>
         </div>

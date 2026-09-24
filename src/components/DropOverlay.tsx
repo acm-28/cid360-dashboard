@@ -38,9 +38,9 @@ export function DropOverlay({ onFiles }: { onFiles: (f: FileList) => void }) {
 
   if (!visible) return null
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-ivory/85 backdrop-blur-md">
-      <div className="flex flex-col items-center rounded-[28px] border-[1.5px] border-dashed border-cid/60 bg-ivory-raised px-16 py-12 text-center shadow-lift">
-        <Isotype gradient className="mb-5 h-14 w-auto" />
+    <div className="veil-in fixed inset-0 z-50 grid place-items-center bg-ivory/85 backdrop-blur-md">
+      <div className="toast-in flex flex-col items-center rounded-[28px] border-[1.5px] border-dashed border-cid/60 bg-ivory-raised px-16 py-12 text-center shadow-lift">
+        <Isotype gradient live className="mb-5 h-14 w-auto" />
         <div className="text-[20px] font-semibold tracking-[-0.015em]">Soltá el feed diario</div>
         <p className="mt-1.5 max-w-[34ch] text-[13px] text-ink-2">
           Archivos .jsonl crudos o .json anonimizados. Los identificadores, nombres y transcripciones se descartan en tu

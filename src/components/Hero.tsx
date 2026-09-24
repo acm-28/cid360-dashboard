@@ -1,6 +1,7 @@
-import type { Dispatch, SetStateAction } from 'react'
+import { Fragment, type Dispatch, type SetStateAction } from 'react'
 import { RotateCcw } from 'lucide-react'
 import { Segmented } from './ui'
+import { AnimatedNumber } from '../lib/motion'
 import { DEFAULT_FILTERS, type Filters, type Kpis } from '../lib/metrics'
 import { fmtDate, fmtInt, fmtPct } from '../lib/format'
 
@@ -22,15 +23,17 @@ export function Hero({
   const set = <K extends keyof Filters>(k: K) => (v: Filters[K]) => onFilters((prev) => ({ ...prev, [k]: v }))
 
   return (
-    <section className="rise pt-10 pb-8 md:pt-14">
-      <div className="mb-3 text-[13px] font-medium text-ink-2">{fmtDate(date)}</div>
+    <section className="pt-10 pb-8 md:pt-14">
+      <div className="fade-in mb-3 text-[13px] font-medium text-ink-2">{fmtDate(date)}</div>
       {kpis.total ? (
         <>
           <h1 className="max-w-[24ch] text-[34px] leading-[1.08] font-semibold tracking-[-0.035em] text-ink md:text-[48px]">
-            <span className="text-cid-deep">{fmtPct(kpis.favorableRate, 0)}</span> de la cartera gestionada muestra
-            probabilidad de pago favorable.
+            <span className="word text-cid-deep" style={{ ['--i' as string]: 0 }}>
+              <AnimatedNumber value={kpis.favorableRate} format={(v) => fmtPct(v, 0)} className="num" />
+            </span>{' '}
+            <Words text="de la cartera gestionada muestra probabilidad de pago favorable." offset={1} />
           </h1>
-          <p className="mt-4 max-w-[64ch] text-[15px] text-ink-2">
+          <p className="fade-in mt-4 max-w-[64ch] text-[15px] text-ink-2" style={{ ['--delay' as string]: '520ms' }}>
             {fmtInt(kpis.total)} gestiones {filtered ? `de ${fmtInt(total)} ` : ''}analizadas por los modelos de calidad de
             CID360. {fmtPct(kpis.contactRate, 0)} logró contacto efectivo y {fmtPct(kpis.goodRate, 0)} alcanzó una
             probabilidad de pago buena.
@@ -39,7 +42,7 @@ export function Hero({
       ) : (
         <>
           <h1 className="max-w-[24ch] text-[34px] leading-[1.08] font-semibold tracking-[-0.035em] text-ink md:text-[48px]">
-            Ninguna gestión coincide con esta combinación.
+            <Words text="Ninguna gestión coincide con esta combinación." />
           </h1>
           <p className="mt-4 max-w-[64ch] text-[15px] text-ink-2">
             Ampliá la franja, la duración o la probabilidad para volver a ver el panorama de las {fmtInt(total)} gestiones.
@@ -47,7 +50,10 @@ export function Hero({
         </>
       )}
 
-      <div className="no-print mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+      <div
+        className="fade-in no-print mt-8 flex flex-wrap items-center gap-x-6 gap-y-3"
+        style={{ ['--delay' as string]: '680ms' }}
+      >
         <FilterGroup label="Franja">
           <Segmented
             label="Franja horaria"
@@ -90,15 +96,25 @@ export function Hero({
         {filtered && (
           <button
             onClick={() => onFilters(DEFAULT_FILTERS)}
-            className="inline-flex items-center gap-1.5 text-[13px] font-medium text-cid-deep hover:underline"
+            className="group pop-in press inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[13px] font-medium text-cid-deep hover:bg-cid-soft/60"
           >
-            <RotateCcw className="size-3.5" strokeWidth={2} />
+            <RotateCcw className="size-3.5 transition-transform duration-500 ease-apple group-hover:-rotate-180" strokeWidth={2} />
             Restablecer
           </button>
         )}
       </div>
     </section>
   )
+}
+
+function Words({ text, offset = 0 }: { text: string; offset?: number }) {
+  return text.split(' ').map((w, i) => (
+    <Fragment key={`${w}-${i}`}>
+      <span className="word" style={{ ['--i' as string]: i + offset }}>
+        {w}
+      </span>{' '}
+    </Fragment>
+  ))
 }
 
 function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
