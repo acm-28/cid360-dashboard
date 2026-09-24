@@ -1,0 +1,159 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', system-ui, sans-serif;
+
+  --color-ivory: #f5f3ee;
+  --color-ivory-raised: #fbfaf7;
+  --color-ivory-sunken: #edeae3;
+  --color-hairline: #e4e0d7;
+  --color-ink: #1d1d1f;
+  --color-ink-2: #6e6b66;
+  --color-ink-3: #a19d96;
+  --color-cid: #ff6b1a;
+  --color-cid-deep: #d9520b;
+  --color-cid-mid: #ff9a5c;
+  --color-cid-light: #ffc49e;
+  --color-cid-soft: #ffe7d6;
+  --color-positive: #2f7d5b;
+  --color-negative: #b8412e;
+
+  --shadow-card: 0 1px 2px rgb(29 29 31 / 0.04), 0 8px 24px rgb(29 29 31 / 0.04);
+  --shadow-lift: 0 1px 2px rgb(29 29 31 / 0.05), 0 14px 36px rgb(29 29 31 / 0.08);
+  --shadow-pill: 0 1px 2px rgb(29 29 31 / 0.08), 0 3px 8px rgb(29 29 31 / 0.06);
+
+  --ease-apple: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@layer base {
+  html {
+    background: var(--color-ivory);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  body {
+    @apply font-sans text-[14px] leading-[1.45];
+  }
+  ::selection {
+    background: var(--color-cid-soft);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-cid);
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+}
+
+@utility num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+@utility eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-3);
+}
+
+@utility card {
+  background: var(--color-ivory-raised);
+  border-radius: 22px;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 240ms var(--ease-apple);
+  &:hover {
+    box-shadow: var(--shadow-lift);
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* The asymmetric radius echoes the tail of the CID speech bubble. */
+@utility bubble {
+  border-radius: 12px 12px 4px 12px;
+}
+
+input[type='range'].slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--color-cid) 0%,
+    var(--color-cid) var(--fill, 0%),
+    var(--color-ivory-sunken) var(--fill, 0%)
+  );
+  cursor: pointer;
+}
+input[type='range'].slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: var(--shadow-pill), 0 0 0 0.5px rgb(29 29 31 / 0.08);
+}
+input[type='range'].slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: var(--shadow-pill);
+}
+
+.recharts-wrapper,
+.recharts-surface {
+  outline: none;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 520ms var(--ease-apple) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 12mm;
+  }
+  html {
+    background: #fff;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .card {
+    box-shadow: none;
+    border: 1px solid var(--color-hairline);
+    break-inside: avoid;
+  }
+}

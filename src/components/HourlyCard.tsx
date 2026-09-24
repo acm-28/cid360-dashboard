@@ -1,0 +1,120 @@
+import { useState } from 'react'
+import { Bar, CartesianGrid, Cell, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { CHART, Card, Legend, Segmented, TooltipShell, axisProps } from './ui'
+import { bestAndWorstHours, type HourlyMetric, type hourly } from '../lib/metrics'
+import { fmtDec, fmtDuration, fmtInt, fmtPct, hourLabel } from '../lib/format'
+
+const METRICS: Record<HourlyMetric, { label: string; format: (v: number) => string; domain: [number | 'auto', number | 'auto'] }> = {
+  favorable: { label: 'Probabilidad favorable', format: (v) => fmtPct(v, 0), domain: [0, 1] },
+  score: { label: 'Score IA', format: (v) => fmtDec(v), domain: ['auto', 100] },
+  duration: { label: 'Duración media', format: (v) => fmtDuration(v), domain: [0, 'auto'] },
+}
+
+export function HourlyCard({ rows }: { rows: ReturnType<typeof hourly> }) {
+  const [metric, setMetric] = useState<HourlyMetric>('favorable')
+  const m = METRICS[metric]
+  const extremes = bestAndWorstHours(rows)
+
+  return (
+    <Card
+      eyebrow="Receptividad"
+      title="Ventana horaria"
+      subtitle="Volumen de gestiones por hora y su efectividad. Ayuda a asignar la dotación a las franjas de mayor respuesta."
+      actions={
+        <Segmented
+          size="sm"
+          label="Métrica de la línea"
+          value={metric}
+          onChange={setMetric}
+          options={[
+            { value: 'favorable', label: 'Favorable' },
+            { value: 'score', label: 'Score IA' },
+            { value: 'duration', label: 'Duración' },
+          ]}
+        />
+      }
+    >
+      {extremes && metric === 'favorable' && (
+        <div className="mb-4 grid grid-cols-2 gap-3">
+          <Callout tone="accent" label="Mejor franja" hour={extremes.best.hour} value={fmtPct(extremes.best.favorable!, 0)} />
+          <Callout tone="muted" label="Franja más débil" hour={extremes.worst.hour} value={fmtPct(extremes.worst.favorable!, 0)} />
+        </div>
+      )}
+
+      <div className="h-[260px] w-full min-w-0 overflow-hidden">
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={rows} margin={{ top: 8, right: 4, bottom: 0, left: -12 }}>
+            <CartesianGrid vertical={false} stroke={CHART.grid} strokeDasharray="2 4" />
+            <XAxis dataKey="hour" tickFormatter={hourLabel} {...axisProps} />
+            <YAxis yAxisId="v" {...axisProps} width={44} />
+            <YAxis
+              yAxisId="m"
+              orientation="right"
+              {...axisProps}
+              width={52}
+              domain={m.domain}
+              tickFormatter={(v: number) => (metric === 'duration' ? `${Math.round(v / 60)}m` : m.format(v))}
+            />
+            <Tooltip
+              cursor={{ fill: 'rgba(29,29,31,0.035)' }}
+              content={({ active, payload }) => {
+                const p = payload?.[0]?.payload as (typeof rows)[number] | undefined
+                if (!active || !p) return null
+                const v = p[metric]
+                return (
+                  <TooltipShell
+                    title={`${hourLabel(p.hour)} – ${hourLabel(p.hour + 1)}`}
+                    rows={[
+                      { label: 'Gestiones', value: fmtInt(p.volume), color: CHART.muted },
+                      { label: m.label, value: v === null ? '—' : m.format(v), color: CHART.cid },
+                    ]}
+                  />
+                )
+              }}
+            />
+            <Bar yAxisId="v" dataKey="volume" fill={CHART.muted} radius={[4, 4, 0, 0]} maxBarSize={28}>
+              {rows.map((r) => (
+                <Cell
+                  key={r.hour}
+                  fill={extremes && metric === 'favorable' && r.hour === extremes.best.hour ? CHART.cidLight : CHART.muted}
+                />
+              ))}
+            </Bar>
+            <Line
+              yAxisId="m"
+              dataKey={metric}
+              type="monotone"
+              stroke={CHART.cid}
+              strokeWidth={2}
+              dot={{ r: 2.5, fill: CHART.cid, strokeWidth: 0 }}
+              activeDot={{ r: 5, fill: '#fff', stroke: CHART.cid, strokeWidth: 2 }}
+              connectNulls
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="mt-3">
+        <Legend
+          items={[
+            { color: CHART.muted, label: 'Gestiones por hora' },
+            { color: CHART.cid, label: m.label, shape: 'line' },
+          ]}
+        />
+      </div>
+    </Card>
+  )
+}
+
+function Callout({ tone, label, hour, value }: { tone: 'accent' | 'muted'; label: string; hour: number; value: string }) {
+  return (
+    <div className={`bubble px-4 py-3 ${tone === 'accent' ? 'bg-cid-soft/70' : 'bg-ivory-sunken/70'}`}>
+      <div className="text-[11.5px] font-medium text-ink-2">{label}</div>
+      <div className="mt-0.5 flex items-baseline gap-2">
+        <span className="num text-[20px] font-semibold text-ink">{hourLabel(hour)}</span>
+        <span className={`num text-[13px] font-medium ${tone === 'accent' ? 'text-cid-deep' : 'text-ink-2'}`}>
+          {value} favorable
+        </span>
+      </div>
+    </div>
+  )
+}

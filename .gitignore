@@ -1,0 +1,6 @@
+node_modules
+dist
+*.local
+.DS_Store
+# raw feeds may contain PII; only anonymized samples are committed
+data/raw
