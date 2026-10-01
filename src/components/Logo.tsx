@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import clsx from 'clsx'
 import { prefersReducedMotion } from '../lib/motion'
+import commericxMark from '../assets/commericx-isotype.png'
 
 const BUBBLE = 'M34 7H70A27 27 0 0 1 97 34V64L103 69H34A27 27 0 0 1 7 42V34A27 27 0 0 1 34 7Z'
 
@@ -67,19 +68,36 @@ export function Isotype({
   )
 }
 
+export function CommericxMark({ className }: { className?: string }) {
+  return <img src={commericxMark} alt="" className={clsx('block w-auto', className)} />
+}
+
 export function Logo({ compact = false, live = false, className }: { compact?: boolean; live?: boolean; className?: string }) {
   return (
     <div className={clsx('flex items-center gap-2.5', className)}>
       <Isotype live={live} className="h-[26px] w-auto text-cid" />
       <div className="leading-none">
-        <div className="flex items-start text-[21px] tracking-[-0.03em] text-ink">
-          <span className="font-light">CID</span>
-          <span className="font-bold">360</span>
-          <span className="ml-[1px] mt-[1px] text-[8px] font-medium text-ink-2">®</span>
+        <div className="flex items-center gap-2.5">
+          <div className="flex items-start text-[21px] tracking-[-0.03em] text-ink">
+            <span className="font-light">CID</span>
+            <span className="font-bold">360</span>
+            <span className="ml-[1px] mt-[1px] text-[8px] font-medium text-ink-2">®</span>
+          </div>
+          <span className="inline-flex items-center gap-1.5">
+            <CommericxMark className="h-[22px] w-auto" />
+            <span className="rounded-full bg-cid px-2.5 py-1 text-[12px] leading-none font-semibold tracking-[0.04em] text-white">
+              COMMERICX POC
+            </span>
+          </span>
         </div>
         {!compact && (
-          <div className="mt-[3px] hidden text-[9.5px] font-medium tracking-[0.01em] text-ink-3 sm:block">
-            Centro de Calidad, Insights y Desarrollo
+          <div className="mt-[3px]">
+            <div className="hidden text-[9.5px] font-medium tracking-[0.01em] text-ink-3 sm:block">
+              Centro de Calidad, Insights y Desarrollo
+            </div>
+            <p className="mt-1 text-[12px] font-medium leading-snug text-ink">
+              Esta webapp es una prueba de concepto comercial.
+            </p>
           </div>
         )}
       </div>
