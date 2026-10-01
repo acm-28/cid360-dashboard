@@ -17,7 +17,7 @@ import { CustomizePanel } from './components/CustomizePanel'
 import { DeliveriesPage } from './components/DeliveriesPage'
 import { DELIVERIES, incidents } from './lib/deliveries'
 import { useRoute } from './lib/useRoute'
-import { Isotype, Logo } from './components/Logo'
+import { CommericxMark, Isotype, Logo } from './components/Logo'
 import { useDatasets } from './lib/useDatasets'
 import { useLayout, type ModuleId } from './lib/useLayout'
 import {
@@ -151,12 +151,21 @@ export default function App() {
                 </>
               )}
 
-              <footer className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-hairline pt-6 text-[12px] text-ink-3">
-                <Logo compact />
-                <p className="max-w-[80ch]">
-                  Feed del {fmtDate(data.current.date).toLowerCase()} · {data.current.source}. Métricas agregadas: no incluyen identificadores
-                  de clientes, gestores ni grabaciones. Contacto efectivo: más de 45 s de conversación. Probabilidad favorable: buena o
-                  regular según el modelo de CID360.
+              <footer className="mt-14 border-t border-hairline pt-6 text-[12px] text-ink-3">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <Logo compact />
+                  <p className="max-w-[80ch]">
+                    Feed del {fmtDate(data.current.date).toLowerCase()} · {data.current.source}. Métricas agregadas: no incluyen identificadores
+                    de clientes, gestores ni grabaciones. Contacto efectivo: más de 45 s de conversación. Probabilidad favorable: buena o
+                    regular según el modelo de CID360.
+                  </p>
+                </div>
+                <p className="mt-4 text-[13px] font-medium text-ink">
+                  Esta webapp es una prueba de concepto comercial. Es propiedad intelectual de{' '}
+                  <span className="inline-flex items-center gap-1 align-[-0.15em] font-semibold text-ink">
+                    <CommericxMark className="h-[1.05em] w-auto" />
+                    COMMERICX.
+                  </span>
                 </p>
               </footer>
             </>

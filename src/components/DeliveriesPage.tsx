@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react'
 import clsx from 'clsx'
 import { CHART, Delta, Words } from './ui'
-import { Logo } from './Logo'
+import { CommericxMark, Logo } from './Logo'
 import { DeliveryCalendarCard, StatusDot, type Period } from './DeliveryCalendarCard'
 import { AttentionCard, ReliabilityCard } from './DeliveryCards'
 import { ProviderPanel } from './ProviderPanel'
@@ -166,12 +166,21 @@ export function DeliveriesPage() {
         </div>
       </div>
 
-      <footer className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-hairline pt-6 text-[12px] text-ink-3">
-        <Logo compact />
-        <p className="max-w-[80ch]">
-          Monitoreo de los lotes diarios que cada proveedor conectado entrega a CID360, del {dayLabel(days[0])} al{' '}
-          {dayLabel(days[days.length - 1])}. Un lote se considera enviado con éxito cuando supera la validación técnica de formato y
-          contenido. Se controlan días hábiles, de lunes a viernes.
+      <footer className="mt-14 border-t border-hairline pt-6 text-[12px] text-ink-3">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <Logo compact />
+          <p className="max-w-[80ch]">
+            Monitoreo de los lotes diarios que cada proveedor conectado entrega a CID360, del {dayLabel(days[0])} al{' '}
+            {dayLabel(days[days.length - 1])}. Un lote se considera enviado con éxito cuando supera la validación técnica de formato y
+            contenido. Se controlan días hábiles, de lunes a viernes.
+          </p>
+        </div>
+        <p className="mt-4 text-[13px] font-medium text-ink">
+          Esta webapp es una prueba de concepto comercial. Es propiedad intelectual de{' '}
+          <span className="inline-flex items-center gap-1 align-[-0.15em] font-semibold text-ink">
+            <CommericxMark className="h-[1.05em] w-auto" />
+            COMMERICX.
+          </span>
         </p>
       </footer>
 

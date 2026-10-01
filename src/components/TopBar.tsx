@@ -67,7 +67,7 @@ export function TopBar({
         style={{ transform: 'scaleX(0)' }}
       />
       <div className="page">
-        <div className="flex h-14 items-center gap-3 md:h-16 md:gap-4">
+        <div className="flex min-h-14 items-center gap-3 py-2.5 md:min-h-16 md:gap-4">
           <Logo live className="shrink-0" />
 
           <div className="mx-1 hidden h-6 w-px bg-hairline md:block" />
